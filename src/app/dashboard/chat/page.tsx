@@ -1,30 +1,42 @@
 "use client";
 import MessageBubble from '@/components/AI/MessageBubble';
-import {useChatStore} from '@/lib/stores/chatStore';
+import { useChatStore, useConversationStore } from '@/lib/stores/chatStore';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useState, useRef, useEffect } from 'react';
-import {fetchAIStreamResult} from '@/lib/agents/silision';
-export default function ChatPage(){
+import { fetchAIStreamResult } from '@/lib/agents/silision';
+import { getTimestamp } from '@/lib/utils/time';
+export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
   const { messages, sendMessage, appendAIMessageChunk } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const [conversationId, setConversationId] = useState<number>(-1);
+  const [loading, setLoading] = useState<boolean>(false);
+  const { conversations, addConversation, deleteConversation, updateConversation } = useConversationStore();
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const [loading, setLoading] = useState<boolean>(false);
   const handleSend = async () => {
+    if (conversationId == -1) {
+      setConversationId(Date.now());
+      addConversation({
+        id: conversationId,
+        title: '新会话' + Math.floor(Math.random() * 100),
+        conversationId: conversationId,
+        timestamp: getTimestamp(),
+      })
+    }
+
     if (inputMessage.trim()) {
       const userMsgId = Date.now();
       const userMsg = {
         id: userMsgId,
         content: inputMessage,
         isUser: true,
-        timestamp: new Date().toLocaleTimeString(),
-        thinkContent: '' // 新增思考内容字段
+        timestamp: getTimestamp(),
+        thinkContent: '',
+        conversationId: conversationId
       };
-      
       const aiMsgId = userMsgId + 1;
       sendMessage(userMsg);
       setInputMessage('');
@@ -35,11 +47,12 @@ export default function ChatPage(){
           id: aiMsgId,
           content: '',
           isUser: false,
-          timestamp: new Date().toLocaleTimeString(),
-          thinkContent: '' // 新增思考内容字段
+          timestamp: getTimestamp(),
+          thinkContent: '',
+          conversationId: conversationId
         });
         appendAIMessageChunk(aiMsgId, '', true);
-        
+
         const generator = fetchAIStreamResult([...messages, userMsg].map(msg => ({
           role: msg.isUser ? 'user' : 'assistant',
           content: msg.content
@@ -50,7 +63,7 @@ export default function ChatPage(){
           if (chunk.thinking) {
             appendAIMessageChunk(aiMsgId, chunk.word, true);
           }
-          else{
+          else {
             appendAIMessageChunk(aiMsgId, chunk.word, false);
           }
         }
@@ -64,11 +77,11 @@ export default function ChatPage(){
     }
   };
 
-  
+
   return (
     <div className="flex flex-col h-full p-4 max-w-3xl mx-auto">
-      <div className="flex-1 overflow-y-auto mb-4 space-y-4" ref={messagesEndRef}>
-        <div/>
+      <div className="flex-1 overflow-y-auto mb-4 space-y-4 pr-4" ref={messagesEndRef}>
+        <div />
         {messages.map((msg, index) => (
           <MessageBubble
             key={index}
@@ -79,7 +92,7 @@ export default function ChatPage(){
           />
         ))}
       </div>
-      
+
       <div className="flex gap-2">
         <TextareaAutosize
           value={inputMessage}

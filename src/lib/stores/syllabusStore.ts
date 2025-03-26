@@ -36,9 +36,10 @@ export const useSyllabusStore = create<SyllabusState>((set) => ({
     loadMock: async () => {
         try {
             const mockData = await import('@/types/cards.mock.json');
+            let _in =0 ;
             set(produce((state) => {
                 state.generatedCards = mockData.default.cards.map((card: any, index: number) => ({
-                    id: 0,
+                    id: _in++,
                     conversationId: "",
                     index: index,
                     title: card.title,

@@ -3,12 +3,14 @@ import NavigationMenu from '@/components/NavigationMenu';
 import HistoryPanel from '@/components/HistoryPanel';
 import { useConversationStore } from '@/lib/stores/conversationStore';
 import { useEffect, useState } from 'react';
-import { text } from 'stream/consumers';
+import { usePathname } from 'next/navigation';
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const showHistory = pathname?.startsWith('/dashboard/syllabus') || pathname?.startsWith('/dashboard/chat') || pathname?.startsWith('/dashboard/ppt');
   const navItems = [
     {
       icon: (
@@ -40,11 +42,20 @@ export default function DashboardLayout({
     {
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>        
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
       text: "习题推荐",
       href: "/dashboard/exercise"
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12h18M8 14v-4m4 4V8m4 8v-6"/>        
+        </svg>
+      ),
+      text: "学情分析",
+      href: "/dashboard/analysis"
     }
   ];
   const { conversations } = useConversationStore();
@@ -68,11 +79,11 @@ export default function DashboardLayout({
   }, [conversations]); // 监听会话变化
 
   return (
-    <div className="grid grid-cols-[auto_auto_1fr] h-screen w-full bg-gray-50">
+    <div className={`grid ${showHistory ? 'grid-cols-[auto_auto_1fr]' : 'grid-cols-[auto_1fr]'} h-screen w-full bg-gray-50`}>
       <NavigationMenu items={navItems} />
 
-      {/* 中间历史记录 */}
-      <HistoryPanel items={historyItems} />
+      {/* 条件渲染历史记录 */}
+      {showHistory && <HistoryPanel items={historyItems} />}
 
       {/* 主内容区域 */}
       <main className="p-8 bg-white overflow-y-auto h-full">

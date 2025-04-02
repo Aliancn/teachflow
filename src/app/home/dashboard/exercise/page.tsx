@@ -1,8 +1,12 @@
 "use client";
+/** @jsxImportSource react */
 import { Card } from "@/components/ui/Card";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css"; // 引入 KaTeX 样式
 
 export default function ExercisePage() {
   const searchParams = useSearchParams();
@@ -120,6 +124,21 @@ export default function ExercisePage() {
     }
   };
 
+  // 题目预览阶段
+  const getSafeMarkdownPreview = (markdown: string, length: number) => {
+    let truncated = markdown.slice(0, length);
+  
+    // 确保数学公式不会被截断
+    const dollarMatches = truncated.match(/\$/g);
+    if (dollarMatches && dollarMatches.length % 2 !== 0) {
+      // 如果 `$` 是奇数个，说明公式被截断，去掉最后一个 `$`
+      truncated = truncated.slice(0, truncated.lastIndexOf("$"));
+    }
+    return truncated + "...";
+  };
+  
+  
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">习题推荐</h1>
@@ -154,11 +173,10 @@ export default function ExercisePage() {
           ].map(filter => (
             <button
               key={filter.key}
-              className={`px-4 py-2 rounded transition-all cursor-pointer ${
-                activeFilter === filter.key
+              className={`px-4 py-2 rounded transition-all cursor-pointer ${activeFilter === filter.key
                   ? "bg-indigo-600 text-white border border-indigo-700 shadow-md"
                   : "bg-gray-200 hover:bg-indigo-100 hover:text-indigo-700" // 悬停效果
-              }`}
+                }`}
               onClick={() => setActiveFilter(activeFilter === filter.key ? null : filter.key as keyof typeof selectedFilters)}
             >
               {filter.label}
@@ -223,7 +241,19 @@ export default function ExercisePage() {
         {paginatedProblems.map((problem, index) => (
           <Card
             key={index}
-            onClick={() => setSelectedProblem(index === selectedProblem ? null : index)}
+            onClick={(event) => {
+              // 检查点击事件的目标是否是卡片的内容区域
+              const target = event.target as HTMLElement;
+              if (target.tagName === "BUTTON" || target.tagName === "INPUT" || target.closest("button")) {
+                // 如果点击的是按钮或输入框，阻止收回逻辑
+                return;
+              }
+              if (window.getSelection()?.toString()) {
+                // 如果用户正在选择文本，阻止收回逻辑
+                return;
+              }
+              setSelectedProblem(index === selectedProblem ? null : index);
+            }}
             className="cursor-pointer"
             padding="xs"
           >
@@ -235,17 +265,22 @@ export default function ExercisePage() {
                 <span>{problem.difficulty}</span>
                 <span>•</span>
                 <span>{problem.knowledgePoint.join(", ")}</span>
-                <span>•</span>
-                <span>{problem.stage}</span>
               </div>
               <div className="mt-2 text-gray-800 text-base">
                 {selectedProblem === index ? (
                   <>
-                    <ReactMarkdown>{problem.content}</ReactMarkdown>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={{
+                        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                      }}
+                    >
+                      {problem.content}
+                    </ReactMarkdown>
                     <div className="mt-2 font-semibold text-indigo-700">
                       答案：{problem.answer}
                     </div>
-                    {/* 新增“举一反三”按钮 */}
                     <div className="mt-4 flex justify-end">
                       <button
                         className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
@@ -259,9 +294,18 @@ export default function ExercisePage() {
                     </div>
                   </>
                 ) : (
-                  <p className="text-gray-600">{problem.content.slice(0, 50)}...</p>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                    components={{
+                      p: ({ node, ...props }) => <p className="mb-2 inline" {...props} />, // 让 Markdown 渲染成内联
+                    }}
+                  >
+                    {getSafeMarkdownPreview(problem.content, 50)}
+                  </ReactMarkdown>
                 )}
               </div>
+
             </div>
           </Card>
         ))}

@@ -35,7 +35,7 @@ export default function SyllabusGeneration() {
       console.error('生成失败:', error);
     } finally {
       setGenerating(false);
-      router.push('/dashboard/syllabus/result');
+      router.push('/home/dashboard/syllabus/result');
     }
   };
 

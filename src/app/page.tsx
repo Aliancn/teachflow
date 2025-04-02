@@ -42,7 +42,7 @@ export default function Home() {
           <p className="text-gray-600 text-lg">
             开始创建你的第一个AI增强课程内容
           </p>
-          <Link href="/dashboard" className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors self-center">
+          <Link href="/home" className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors self-center">
             开始使用
           </Link>
         </div>

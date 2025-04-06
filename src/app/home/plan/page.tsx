@@ -1,17 +1,56 @@
 "use client";
+import { useState, useEffect } from "react";
 import { usePlanStore } from '@/lib/stores/planStore';
-import { useEffect } from 'react';
 import { ProfileCard } from '@/components/PlanCard/Profile';
 import { ContentCard } from '@/components/PlanCard/ContentCard';
 import { ResourceList } from '@/components/PlanCard/ResourceList';
+import { Plus } from 'lucide-react';
+
 export default function LessonPlanPage() {
     const { currentPlan, loadMockData } = usePlanStore();
+    const [problems, setProblems] = useState<any[]>([]); // 初始习题数据
+    const [addedExercises, setAddedExercises] = useState<any[]>([]); // 从 exercise 页面添加的习题
+
     useEffect(() => {
         loadMockData();
+
+        // 加载习题数据
+        const fetchProblems = async () => {
+            try {
+                const [mathResponse, englishResponse] = await Promise.all([
+                    fetch("/mathProblems.json"),
+                    fetch("/englishProblems.json"),
+                ]);
+                const [mathData, englishData] = await Promise.all([
+                    mathResponse.json(),
+                    englishResponse.json(),
+                ]);
+
+                const combinedData = [...mathData, ...englishData].map((problem: any) => ({
+                    title: problem["标题"],
+                    subject: problem["学科"],
+                    knowledgePoint: problem["知识点"],
+                    difficulty: problem["难度"],
+                    type: problem["题型"],
+                    content: problem["内容"],
+                }));
+                setProblems(combinedData.slice(0, 3));
+            } catch (error) {
+                console.error("加载习题数据失败:", error);
+            }
+        };
+
+        fetchProblems();
+        // 从 localStorage 中加载添加的习题
+        const storedExercises = localStorage.getItem("relatedExercises");
+        if (storedExercises) {
+            setAddedExercises(JSON.parse(storedExercises));
+        }
     }, []);
+
     return (
         <div className="flex w-full h-screen">
-            <div className="relative mr-4 max-w-3xl px-8 py-10 bg-white overflow-hidden w-64 border-r border-gray-200  shadow-sm shadow-purple-100/50">
+            <div className="relative mr-4 max-w-3xl px-8 py-10 bg-white overflow-hidden w-64 border-r border-gray-200 shadow-sm shadow-purple-100/50">
                 {/* 装饰元素 */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600"></div>
                 <div className="absolute top-3 left-3 w-12 h-12 rounded-full bg-purple-100 opacity-20"></div>
@@ -108,6 +147,7 @@ export default function LessonPlanPage() {
                             className="mb-8"
                         />
                     </div>
+
                     <div id="syllabus" className="mt-4">
                         <ContentCard
                             id="syllabus-content"
@@ -116,12 +156,53 @@ export default function LessonPlanPage() {
                             className="mb-8"
                         />
                     </div>
+
                     <div id="resource" className="mt-4">
                         <ResourceList />
                     </div>
-                    <div id="exercise" className="mt-4">
 
+                    <div id="exercise" className="mt-4">
+                        <ContentCard
+                            id="exercise-content"
+                            title={
+                                <div className="flex justify-between items-center">
+                                    <h2 className="text-2xl font-semibold mb-6 text-purple-800">相关练习</h2>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => {
+                                                    window.location.href = "/home/dashboard/exercise?from=plan";
+                                                }}
+                                                className="flex items-center bg-purple-100 text-purple-800 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors"
+                                            >
+                                                <Plus className="w-5 h-5 mr-2" />
+                                                添加练习
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            content={[
+                                ...problems, // 初始的三个习题
+                                ...addedExercises, // 从 exercise 页面添加的习题
+                            ]
+                                .map(
+                                    (problem, index) => `
+### **题目 ${index + 1}: ${problem.title || "未命名题目"}**
+**题型**: ${problem.type}  
+**难度**: ${problem.difficulty}  
+**知识点**: ${problem.knowledgePoint.join(", ")}  
+
+${problem.content}
+
+------
+`
+                                )
+                                .join("\n")}
+                            className="mb-8"
+                        />
                     </div>
+
                 </div>
             </div>
         </div>

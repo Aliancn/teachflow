@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 import { Plus, FileText, Video, Image, Book, Download } from 'lucide-react';
+import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import type { Resource } from '@/lib/stores/resourceStore';
 import { useResourceStore } from '@/lib/stores/resourceStore';
@@ -12,7 +13,7 @@ const resourceTypes = [
 ];
 
 export function ResourceList() {
-    const { resources, addResource, deleteResource } = useResourceStore();
+    const { resources, addResource, deleteResource, loadMockData } = useResourceStore();
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -27,12 +28,16 @@ export function ResourceList() {
     }, []);
 
     const addRes = (type: Resource['type']) => {
-        const newResource = {
-            id: uuidv4(),
-            type,
-            title: `${resourceTypes.find(t => t.type === type)?.label} ${resources.filter(r => r.type === type).length + 1}`
-        };
-        addResource(newResource);
+        // TODO
+        // const newResource = {
+        //     id: uuidv4(),
+        //     type,
+        //     url: [],
+        //     description: [],
+        //     title: `${resourceTypes.find(t => t.type === type)?.label} ${resources.filter(r => r.type === type).length + 1}`
+        // };
+        // addResource(newResource);
+        loadMockData();
         setShowDropdown(false);
     };
 
@@ -77,7 +82,9 @@ export function ResourceList() {
                                         <td className="py-3 pl-4 text-gray-500 w-12">#{index + 1}</td>
                                         <td className="py-3  flex items-center">
                                             <span className="text-purple-600 mr-4">{typeInfo?.icon}</span>
-                                            <span className="text-gray-700 p-2">{resource.title}</span>
+                                            <Link href={`/home/plan/resource/${resource.id}`} className="text-gray-700 hover:text-purple-600 p-2">
+                                                {resource.title}
+                                            </Link>
                                         </td>
                                         <td className="py-3 pr-4 text-right">
                                             <button className="text-gray-400 hover:text-purple-600 p-2 rounded-lg">

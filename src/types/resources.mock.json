@@ -1,0 +1,105 @@
+[
+  {
+    "id": "res_001",
+    "type": "document",
+    "title": "请告诉我怎么使用 ChatGPT",
+    "url": [
+      "https://help.openai.com/zh-Hans/articles/6825453",
+      "https://openai.com/chatgpt"
+    ],
+    "description": [
+      "官方帮助文档，介绍 ChatGPT 的使用方法。",
+      "OpenAI 官网入口，获取最新产品信息与使用方式。"
+    ]
+  },
+  {
+    "id": "res_002",
+    "type": "document",
+    "title": "ChatGPT 提示词精选",
+    "url": [
+      "https://github.com/f/awesome-chatgpt-prompts"
+    ],
+    "description": [
+      "社区维护的 ChatGPT 提示词集合，涵盖多个应用场景。"
+    ]
+  },
+  {
+    "id": "res_003",
+    "type": "video",
+    "title": "深入了解 GPT-4 与 GPT-4o",
+    "url": [
+      "https://www.youtube.com/watch?v=DQacCB9tDaw",
+      "https://www.youtube.com/watch?v=U0WBs-kzJ2g"
+    ],
+    "description": [
+      "OpenAI 官方演示 GPT-4o 强大能力，涵盖文本、图像和语音。",
+      "详细比较 GPT-4 与 GPT-4o 的性能与特点。"
+    ]
+  },
+  {
+    "id": "res_004",
+    "type": "video",
+    "title": "ChatGPT 工作原理解析",
+    "url": [
+      "https://www.youtube.com/watch?v=JTxsNm9IdYU"
+    ],
+    "description": [
+      "一部通俗易懂的视频，解释 ChatGPT 背后的技术机制。"
+    ]
+  },
+  {
+    "id": "res_005",
+    "type": "image",
+    "title": "未来城市与人工智能",
+    "url": [
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
+    ],
+    "description": [
+      "展示 AI 与现代城市融合的概念图。"
+    ]
+  },
+  {
+    "id": "res_006",
+    "type": "image",
+    "title": "AI 可视化神经网络图",
+    "url": [
+      "https://images.unsplash.com/photo-1581091012184-7e0cdfbb679e"
+    ],
+    "description": [
+      "抽象表现神经网络模型与信息流动的结构图。"
+    ]
+  },
+  {
+    "id": "res_007",
+    "type": "book",
+    "title": "人工智能：一种现代的方法",
+    "url": [
+      "https://archive.org/details/artificial-intelligence-a-modern-approach"
+    ],
+    "description": [
+      "AI 领域的经典教材，全面讲解智能体、搜索、知识表示等内容。"
+    ]
+  },
+  {
+    "id": "res_008",
+    "type": "book",
+    "title": "深度学习（Ian Goodfellow 著）",
+    "url": [
+      "https://www.deeplearningbook.org/"
+    ],
+    "description": [
+      "由深度学习三巨头之一撰写的权威教材，适合中高级学习者。"
+    ]
+  },
+  {
+    "id": "res_009",
+    "type": "book",
+    "title": "神经网络的理论基础",
+    "url": [
+      "https://www.cs.toronto.edu/~hinton/absps/NatureDeepReview.pdf"
+    ],
+    "description": [
+      "Geoffrey Hinton 等人综述深度学习方法及其演进。"
+    ]
+  }
+]

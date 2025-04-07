@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Plus, FileText, Video, Image, Book, Download } from 'lucide-react';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
+import { RecommendedResources } from './RecommendedResources';
 import type { Resource } from '@/lib/stores/resourceStore';
 import { useResourceStore } from '@/lib/stores/resourceStore';
 const resourceTypes = [
@@ -70,7 +71,8 @@ export function ResourceList() {
                     )}
                 </div>
             </div>
-
+            {/* 推荐资源 */}
+            <RecommendedResources className="mb-8" />
             <div className="border-t border-gray-100 pt-4">
                 {resources.length > 0 ? (
                     <table className="w-full">

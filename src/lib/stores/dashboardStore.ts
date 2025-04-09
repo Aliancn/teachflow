@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PPTIcon, SyllabusIcon, ExerciseIcon, MediaIcon } from '@/components/icons/DashboardIcons';
+import { PPTIcon, SyllabusIcon, ExerciseIcon, MediaIcon , FileTextIcon, BookIcon, StarIcon} from '@/components/icons/DashboardIcons';
 
 interface DashboardFeature {
   id: string;
@@ -53,6 +53,27 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
       description: '自动生成配套教学视频/图示',
       path: '/home/dashboard/media',
       icon: MediaIcon,
+    },
+    {
+      id: 'resource-search',
+      title: '资源搜索',
+      description: '快速查找教学资源',
+      path: '/home/dashboard/resource',
+      icon: FileTextIcon,
+    },
+    {
+      id: 'auto-paper',
+      title: '一键出卷',
+      description: '智能生成考试试卷',
+      path: '/home/dashboard/paper',
+      icon: BookIcon,
+    },
+    {
+      id: 'exercise-enhance',
+      title: '习题强化',
+      description: '个性化题目优化',
+      path: '/home/dashboard/optimize',
+      icon: StarIcon,
     },
   ],
 }));

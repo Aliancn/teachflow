@@ -12,20 +12,27 @@ export type CardData = {
         duration: string;
     };
 };
+export type SyllabusWord = {
+    uuid: number;
+    content: string;
+}
 
 type SyllabusState = {
     generatedCards: CardData[];
     generating: boolean;
+    word : SyllabusWord[];
     setGeneratedCards: (cards: CardData[]) => void;
     loadMock: () => Promise<void>;
     setGenerating: (generating: boolean) => void;
     updateCard: (updatedCard: CardData) => void;
     updateCardOrder: (newOrder: string[]) => void;
+    loadMockWord : () => Promise<void>;
 };
 
 export const useSyllabusStore = create<SyllabusState>((set) => ({
     generatedCards: [],
     generating: false,
+    word: [],
     setGeneratedCards: (cards) => set({ generatedCards: cards }),
     setGenerating: (generating:boolean) => set({ generating }),
     updateCard: (updatedCard) => set(produce((state) => {
@@ -72,4 +79,18 @@ export const useSyllabusStore = create<SyllabusState>((set) => ({
             console.error('加载mock数据失败', err);
         }
     },
+    loadMockWord : async () => {
+        try {
+            const mockData =  (await import('@/types/content.mock.json'))
+            set(produce((state) => {
+                state.word[0] = {
+                    uuid: 0,
+                    content: mockData.default.text
+                }
+            }));
+        }
+        catch (err) {
+            console.error('加载mock word数据失败', err);
+        }
+    }
 }));

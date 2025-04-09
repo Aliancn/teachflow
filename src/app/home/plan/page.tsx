@@ -204,12 +204,24 @@ ${problem.content}
                             />
                         </div>
 
-                        <div id="PPT" className="flex my-2 items-center justify-center">
+                        <div id="button" className="flex my-2 items-center justify-center gap-4">
                             <button
                                 onClick={() => window.location.href = "/home/dashboard/ppt"}
-                                className="w-[70%] pb-2 bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-4 rounded-lg hover:shadow-lg transition-all"
+                                className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
                             >
-                                立即生成教学PPT
+                                生成教学PPT
+                            </button>
+                            <button
+                                onClick={() => window.location.href = "/home/dashboard/resource"}
+                                className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
+                            >
+                                生成教学资源
+                            </button>
+                            <button
+                                onClick={() => window.location.href = "/home/dashboard/exercise"}
+                                className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
+                            >
+                                生成对应习题
                             </button>
                         </div>
                     </div>

@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { produce } from 'immer';
 
-
-
 type MarkdownContent = {
     type: 'text' | 'image';
     content: string;

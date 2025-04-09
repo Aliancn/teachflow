@@ -7,7 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 
 type ResourceCardProps = {
   url : string ,    
-  type : 'document' | 'video' | 'image' | 'book',
+  type : 'document' | 'video' | 'image' | 'audio',
   description : string,
 };
 function ResourceCard({ resource }: { resource: ResourceCardProps }) {
@@ -17,7 +17,7 @@ function ResourceCard({ resource }: { resource: ResourceCardProps }) {
         {resource.type === 'document' && <FileText className="w-6 h-6 text-purple-600 mr-3" />}
         {resource.type === 'video' && <Video className="w-6 h-6 text-purple-600 mr-3" />}
         {resource.type === 'image' && <Image className="w-6 h-6 text-purple-600 mr-3" />}
-        {resource.type === 'book' && <Book className="w-6 h-6 text-purple-600 mr-3" />}
+        {resource.type === 'audio' && <Book className="w-6 h-6 text-purple-600 mr-3" />}
         <h2 className="text-lg font-semibold text-gray-800">{resource.description}</h2>
       </div>
 

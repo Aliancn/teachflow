@@ -10,7 +10,7 @@ import { getTimestamp } from '@/lib/utils/time';
 import Link from 'next/link';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
-  const { messages, sendMessage, appendAIMessageChunk } = useChatStore();
+  const { started, messages, sendMessage, appendAIMessageChunk, clearMessages } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationId, setConversationId] = useState<number>(-1);
   const [loading, setLoading] = useState<boolean>(false);
@@ -20,7 +20,7 @@ export default function ChatPage() {
   }, [messages]);
   useEffect(() => {
     // 新增开场提示
-    if (messages.length === 0) {
+    if (messages.length === 0 && !started) {
       const welcomeMsg = {
         id: Date.now(),
         content: `👋 欢迎使用 TeachFlow 智能助手！\n\n**我能为您提供以下帮助：**\n\n - 生成教学方案\n- 解答学科问题\n- 优化课程内容\n\n请随时提问～\n\n✨🚀`,
@@ -31,8 +31,6 @@ export default function ChatPage() {
       };
       sendMessage(welcomeMsg);
     }
-
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);  // 空数组表示只在组件挂载时执行一次
 
   const handleSend = async () => {

@@ -33,6 +33,7 @@ export default function DashboardApp() {
 
   const onFeatureSubmit = (params: featureForm) => {
     setStep('showTimeLine');
+    console.log(params);
     loadMock();
   }
 

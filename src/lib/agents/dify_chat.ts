@@ -83,7 +83,7 @@ export async function* fetchDifyStreamResultW(messages: DifyMessage[]): AsyncGen
 
 // 02 
 interface DifyRequestBodyAgent {
-  inputs: {};
+  inputs: object;
   query: string;
   response_mode: 'streaming';
   conversation_id: string;

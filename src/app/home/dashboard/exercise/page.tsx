@@ -7,8 +7,17 @@ import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
+import { Suspense } from 'react'
 
-export default function ExercisePage() {
+export default function ExercisePageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ExerciseContent />
+    </Suspense>
+  )
+}
+
+function ExerciseContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [selectedProblem, setSelectedProblem] = useState<number | null>(null);

@@ -4,17 +4,17 @@ import { useChatStore } from '@/lib/stores/chatStore';
 import { useConversationStore } from '@/lib/stores/conversationStore';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useState, useRef, useEffect } from 'react';
-import { fetchAIStreamResult } from '@/lib/agents/silision';
-import { fetchDifyStreamResultW, fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
+// import { fetchAIStreamResult } from '@/lib/agents/silision';
+import { fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
 import { getTimestamp } from '@/lib/utils/time';
 import Link from 'next/link';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
-  const { started, messages, sendMessage, appendAIMessageChunk, clearMessages } = useChatStore();
+  const { started, messages, sendMessage, appendAIMessageChunk} = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationId, setConversationId] = useState<number>(-1);
   const [loading, setLoading] = useState<boolean>(false);
-  const { conversations, addConversation, deleteConversation, updateConversation } = useConversationStore();
+  const {  addConversation} = useConversationStore();
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);

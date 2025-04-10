@@ -65,11 +65,11 @@ export default function DashboardApp() {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && setStep('selectFeature')}
                     placeholder="为我生成一份关于《二次函数》的课程大纲"
-                    className="w-full bg-transparent outline-none placeholder-purple-400 text-lg text-slate-800"
+                    className="w-full bg-transparent outline-none placeholder-purple-300 text-lg text-slate-800"
                   />
                 </div>
               </div>
-              <div className="text-sm text-purple-500 leading-relaxed bg-purple-50 rounded-lg p-4 shadow-sm mt-12">
+              <div className="text-sm text-purple-400 leading-relaxed bg-purple-50 rounded-lg p-4 shadow-sm mt-12">
                 🚀 支持输入：
                 <ul className="list-disc pl-5 mt-2 space-y-1">
                   <li>课程主题</li>

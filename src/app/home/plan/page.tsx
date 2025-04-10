@@ -130,7 +130,7 @@ export default function LessonPlanPage() {
                 </div>
 
                 {/* 主内容区域 */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto mt-4">
                     <div className="prose max-w-4xl mx-auto">
                         <h1 id="title" className="text-3xl font-bold">教学计划</h1>
                         <ProfileCard

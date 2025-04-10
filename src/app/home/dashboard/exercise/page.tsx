@@ -302,21 +302,21 @@ export default function ExercisePage() {
                         {problem.content}
                       </ReactMarkdown>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-4 overflow-auto">
                         {Array.isArray(problem.content) ? (
                           problem.content.map((imgUrl: string, imgIndex: number) => (
                             <img 
                               key={imgIndex}
                               src={imgUrl} 
                               alt={`题目内容 ${imgIndex + 1}`}
-                              className="w-full h-auto rounded"
+                              className="rounded"
                             />
                           ))
                         ) : (
                           <img 
                             src={problem.content} 
                             alt="题目内容"
-                            className="w-full h-auto rounded"
+                            className="rounded"
                           />
                         )}
                       </div>
@@ -331,21 +331,21 @@ export default function ExercisePage() {
                           {problem.answer}
                         </ReactMarkdown>
                       ) : (
-                        <div className="space-y-4 mt-2">
+                        <div className="space-y-4 mt-2 overflow-auto">
                           {Array.isArray(problem.answer) ? (
                             problem.answer.map((imgUrl: string, imgIndex: number) => (
                               <img 
                                 key={imgIndex}
                                 src={imgUrl} 
                                 alt={`答案图片 ${imgIndex + 1}`}
-                                className="w-full h-auto rounded"
+                                className="rounded"
                               />
                             ))
                           ) : (
                             <img 
                               src={problem.answer} 
                               alt="题目答案"
-                              className="w-full h-auto rounded"
+                              className="rounded"
                             />
                           )}
                         </div>

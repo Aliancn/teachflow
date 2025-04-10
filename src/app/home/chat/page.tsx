@@ -1,12 +1,13 @@
 "use client";
 import MessageBubble from '@/components/AI/MessageBubble';
-import { useChatStore} from '@/lib/stores/chatStore';
+import { useChatStore } from '@/lib/stores/chatStore';
 import { useConversationStore } from '@/lib/stores/conversationStore';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useState, useRef, useEffect } from 'react';
 import { fetchAIStreamResult } from '@/lib/agents/silision';
-import { fetchDifyStreamResultW,fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
+import { fetchDifyStreamResultW, fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
 import { getTimestamp } from '@/lib/utils/time';
+import Link from 'next/link';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
   const { messages, sendMessage, appendAIMessageChunk } = useChatStore();
@@ -17,6 +18,22 @@ export default function ChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+  useEffect(() => {
+    // 新增开场提示
+    if (messages.length === 0) {
+      const welcomeMsg = {
+        id: Date.now(),
+        content: `👋 欢迎使用 TeachFlow 智能助手！\n\n**我能为您提供以下帮助：**\n\n - 生成教学方案\n- 解答学科问题\n- 优化课程内容\n\n请随时提问～\n\n✨🚀`,
+        isUser: false,
+        timestamp: getTimestamp(),
+        thinkContent: '',
+        conversationId: -1
+      };
+      sendMessage(welcomeMsg);
+    }
+
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);  // 空数组表示只在组件挂载时执行一次
 
   const handleSend = async () => {
     if (conversationId == -1) {
@@ -61,7 +78,7 @@ export default function ChatPage() {
         //   content: msg.content
         // })));
         const generator = fetchDifyStreamResultAgent([...messages, userMsg].map(msg => ({
-          role: msg.isUser? 'user' : 'assistant',
+          role: msg.isUser ? 'user' : 'assistant',
           content: msg.content
         })), '');
 
@@ -80,7 +97,7 @@ export default function ChatPage() {
       } finally {
         setLoading(false);
         // 滑动到底部
-        messagesEndRef.current?.scrollIntoView({ behavior:'smooth' });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
     }
   };
@@ -91,13 +108,36 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto mb-4 space-y-4 pr-4" ref={messagesEndRef}>
         <div />
         {messages.map((msg, index) => (
-          <MessageBubble
-            key={index}
-            content={msg.content}
-            isUser={msg.isUser}
-            timestamp={msg.timestamp}
-            thinkingContent={msg.thinkContent}
-          />
+          <div key={index}>
+            <MessageBubble
+              content={msg.content}
+              isUser={msg.isUser}
+              timestamp={msg.timestamp}
+              thinkingContent={msg.thinkContent}
+            />
+            {msg.conversationId == -1 && (
+              <div className="mt-4 flex gap-3 px-4">
+                <Link
+                  href="/home/dashboard/paper"
+                  className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  📝 生成试卷
+                </Link>
+                <Link
+                  href="/home/dashboard/resource"
+                  className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  📚 资源中心
+                </Link>
+                <Link
+                  href="/home/dashboard/optimize"
+                  className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  ✨ 习题优化
+                </Link>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 

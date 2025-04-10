@@ -23,9 +23,11 @@ export function AuthForm() {
             if ( data.email != 'admin@admin.com'|| data.password != 'ds3j2#$#321') {
                 throw new Error('Invalid email or password'); 
             }
-            setTimeout(() => {
-                router.push('/home');
-            }, 100);
+            // setTimeout(() => {
+            //     router.push('/home');
+            //     console.log("login jump")
+            // }, 100);
+            router.push('/home');
         } catch (error) { 
             console.error('Login failed:', error);
         }  

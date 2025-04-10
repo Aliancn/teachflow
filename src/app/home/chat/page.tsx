@@ -8,21 +8,25 @@ import { useState, useRef, useEffect } from 'react';
 import { fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
 import { getTimestamp } from '@/lib/utils/time';
 import Link from 'next/link';
+import { set } from 'react-hook-form';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
   const { started, messages, sendMessage, appendAIMessageChunk} = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [conversationId, setConversationId] = useState<number>(-1);
+  const [conversationId, setConversationId] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const {  addConversation} = useConversationStore();
+  const [welcomeMsgID, setWelcomeMsgID] = useState<number>(0);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   useEffect(() => {
     // 新增开场提示
     if (messages.length === 0 && !started) {
+      let now = Date.now();
+      setWelcomeMsgID(now);
       const welcomeMsg = {
-        id: Date.now(),
+        id: now,
         content: `👋 欢迎使用 TeachFlow 智能助手！\n\n**我能为您提供以下帮助：**\n\n - 生成教学方案\n- 解答学科问题\n- 优化课程内容\n\n请随时提问～\n\n✨🚀`,
         isUser: false,
         timestamp: getTimestamp(),
@@ -34,7 +38,7 @@ export default function ChatPage() {
   }, []);  // 空数组表示只在组件挂载时执行一次
 
   const handleSend = async () => {
-    if (conversationId == -1) {
+    if (conversationId == 0) {
       setConversationId(Date.now());
       addConversation({
         id: conversationId,
@@ -113,7 +117,7 @@ export default function ChatPage() {
               timestamp={msg.timestamp}
               thinkingContent={msg.thinkContent}
             />
-            {msg.conversationId == -1 && (
+            {msg.conversationId === welcomeMsgID && (
               <div className="mt-4 flex gap-3 px-4">
                 <Link
                   href="/home/dashboard/paper"

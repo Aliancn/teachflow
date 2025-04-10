@@ -11,14 +11,17 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationId, setConversationId] = useState<number>(-1);
   const [loading, setLoading] = useState<boolean>(false);
+  const [welcomeMsgID, setWelcomeMsgID] = useState<number>(0);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   useEffect(() => {
     // 新增开场提示
     if (messages.length === 0 && !started) {
+      let now = Date.now();
+      setWelcomeMsgID(now);
       const welcomeMsg = {
-        id: Date.now(),
+        id: now,
         content: `👋 欢迎使用 **文案生成**！\n\n请随时告诉我你想编写的文案内容～\n\n✨🚀`,
         isUser: false,
         timestamp: getTimestamp(),

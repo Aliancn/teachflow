@@ -39,46 +39,54 @@ export default function ExercisePage() {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const [mathResponse, englishResponse] = await Promise.all([
-          fetch("/mathProblems.json"),
-          fetch("/englishProblems.json"),
-        ]);
-        const [mathData, englishData] = await Promise.all([
-          mathResponse.json(),
-          englishResponse.json(),
+        const responses = await Promise.all([
+          fetch("/papers/2019 年普通高等学校招生全国统一考试理科数学（全国Ⅰ卷）/2019 年普通高等学校招生全国统一考试理科数学（全国Ⅰ卷）_all.json"),
+          fetch("/papers/2019年全国II卷高考数学（文科）试题及答案/2019年全国II卷高考数学（文科）试题及答案_all.json"),
+          fetch("/papers/2022年全国新高考I卷数学试题（解析版）/2022年全国新高考I卷数学试题（解析版）_all.json"),
+          fetch("/papers/2023年全国甲卷理科数学/2023年全国甲卷理科数学_all.json"),
+          fetch("/papers/2024全国高新高考I卷数学试题（解析版）/2024全国高新高考I卷数学试题（解析版）_all.json"),
+          fetch("/papers/2024年湖北省武汉市中考英语真题（解析版）/2024年湖北省武汉市中考英语真题（解析版）_all.json")
         ]);
 
-        // 合并两个数据集
-        const combinedData = [...mathData, ...englishData];
+        const jsonData = await Promise.all(responses.map(response => response.json()));
 
-        const formattedProblems = combinedData.map((problem: any) => ({
-          title: problem["标题"],
-          subject: problem["学科"],
-          knowledgePoint: problem["知识点"], // 支持多个知识点（数组）
-          difficulty: problem["难度"],
-          stage: problem["阶段"],
-          type: problem["题型"],
-          content: problem["内容"],
-          answer: problem["答案"],
-        }));
+        // 合并所有数据集
+        const formattedProblems = jsonData.flatMap((problems: any, fileIndex: number) =>
+          problems.map((problem: any, problemIndex: number) => ({
+            id: `${fileIndex}-${problemIndex}`, // 添加唯一标识
+            title: problem["标题"],
+            subject: problem["学科"],
+            knowledgePoint: problem["知识点"],
+            difficulty: Array.isArray(problem["难度"]) ? problem["难度"][0] : problem["难度"],
+            stage: Array.isArray(problem["阶段"]) ? problem["阶段"][0] : problem["阶段"],
+            type: Array.isArray(problem["题型"]) ? problem["题型"][0] : problem["题型"],
+            contentType: Array.isArray(problem["类型"]) ? problem["类型"][0] : problem["类型"],
+            content: problem["类型"]?.includes("图片")
+              ? problem["内容"].map((url: string) => `/papers/${url}`)
+              : `/papers/${problem["内容"]}`,
+            answer: problem["类型"]?.includes("图片")
+              ? problem["答案"].map((url: string) => `/papers/${url}`)
+              : `/papers/${problem["答案"]}`,
+          }))
+        );
         setProblems(formattedProblems);
-        console.log(formattedProblems);
 
-        // 动态提取属性值
-        const uniqueSubjects = Array.from(new Set(combinedData.map((problem: any) => problem["学科"])));
-        const uniqueTypes = Array.from(new Set(combinedData.map((problem: any) => problem["题型"])));
-        const uniqueDifficulties = Array.from(new Set(combinedData.map((problem: any) => problem["难度"])));
-        const uniqueStages = Array.from(new Set(combinedData.map((problem: any) => problem["阶段"])));
+        // 从格式化后的数据中提取唯一值
+        const uniqueSubjects = Array.from(new Set(formattedProblems.map(p => p.subject)));
+        const uniqueTypes = Array.from(new Set(formattedProblems.map(p => p.type)));
+        const uniqueDifficulties = Array.from(new Set(formattedProblems.map(p => p.difficulty)));
+        const uniqueStages = Array.from(new Set(formattedProblems.map(p => p.stage)));
         const uniqueKnowledgePoints = Array.from(
-          new Set(combinedData.flatMap((problem: any) => problem["知识点"])) // 展平知识点数组
+          new Set(formattedProblems.flatMap(p =>
+            Array.isArray(p.knowledgePoint) ? p.knowledgePoint : [p.knowledgePoint]
+          ))
         );
 
-        // 设置动态属性值
-        setSubjects(uniqueSubjects);
-        setTypes(uniqueTypes);
-        setDifficulties(uniqueDifficulties);
-        setStages(uniqueStages);
-        setKnowledgePoints(uniqueKnowledgePoints as string[]);
+        setSubjects(uniqueSubjects.filter(Boolean));
+        setTypes(uniqueTypes.filter(Boolean));
+        setDifficulties(uniqueDifficulties.filter(Boolean));
+        setStages(uniqueStages.filter(Boolean));
+        setKnowledgePoints(uniqueKnowledgePoints.filter(Boolean));
       } catch (error) {
         console.error("获取数据失败:", error);
       }
@@ -98,14 +106,31 @@ export default function ExercisePage() {
     });
   };
 
+  // 获取指定学科的知识点
+  const getKnowledgePointsBySubject = (selectedSubjects: string[]) => {
+    if (selectedSubjects.length === 0) {
+      return knowledgePoints; // 如果没有选择学科，返回所有知识点
+    }
+    // 返回所选学科对应的所有知识点
+    return Array.from(new Set(
+      problems
+        .filter(p => selectedSubjects.includes(p.subject))
+        .flatMap(p => Array.isArray(p.knowledgePoint) ? p.knowledgePoint : [p.knowledgePoint])
+    )).filter(Boolean);
+  };
+
   // 根据筛选条件过滤题目
   const filteredProblems = problems.filter(problem => {
+    const knowledgePoints = Array.isArray(problem.knowledgePoint)
+      ? problem.knowledgePoint
+      : [problem.knowledgePoint];
+
     return (
       (selectedFilters.subject.length === 0 || selectedFilters.subject.includes(problem.subject)) &&
       (selectedFilters.type.length === 0 || selectedFilters.type.includes(problem.type)) &&
       (selectedFilters.difficulty.length === 0 || selectedFilters.difficulty.includes(problem.difficulty)) &&
       (selectedFilters.knowledgePoint.length === 0 ||
-        selectedFilters.knowledgePoint.some(knowledge => problem.knowledgePoint.includes(knowledge))) && // 检查知识点是否匹配
+        selectedFilters.knowledgePoint.some(knowledge => knowledgePoints.includes(knowledge))) &&
       (selectedFilters.stage.length === 0 || selectedFilters.stage.includes(problem.stage))
     );
   });
@@ -129,7 +154,7 @@ export default function ExercisePage() {
   // 题目预览阶段
   const getSafeMarkdownPreview = (markdown: string, length: number) => {
     let truncated = markdown.slice(0, length);
-  
+
     // 确保数学公式不会被截断
     const dollarMatches = truncated.match(/\$/g);
     if (dollarMatches && dollarMatches.length % 2 !== 0) {
@@ -138,7 +163,7 @@ export default function ExercisePage() {
     }
     return truncated + "...";
   };
-  
+
   return (
     <div className="p-6 max-w-6xl mx-auto relative">
       {/* 如果从 plan 页面跳转而来，显示返回按钮 */}
@@ -184,8 +209,8 @@ export default function ExercisePage() {
             <button
               key={filter.key}
               className={`px-4 py-2 rounded transition-all cursor-pointer ${activeFilter === filter.key
-                  ? "bg-indigo-600 text-white border border-indigo-700 shadow-md"
-                  : "bg-gray-200 hover:bg-indigo-100 hover:text-indigo-700"
+                ? "bg-indigo-600 text-white border border-indigo-700 shadow-md"
+                : "bg-gray-200 hover:bg-indigo-100 hover:text-indigo-700"
                 }`}
               onClick={() => setActiveFilter(activeFilter === filter.key ? null : filter.key as keyof typeof selectedFilters)}
             >
@@ -211,10 +236,7 @@ export default function ExercisePage() {
 
         {/* 筛选选项 */}
         {activeFilter && (
-          <div
-            className="mt-4 p-4 rounded bg-gray-100 relative"
-            style={{ position: "relative" }}
-          >
+          <div className="mt-4 p-4 rounded bg-gray-100 relative" style={{ position: "relative" }}>
             {/* 关闭按钮 */}
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -223,15 +245,22 @@ export default function ExercisePage() {
               ✕
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {[
-                { label: "学科", key: "subject", options: subjects },
-                { label: "题型", key: "type", options: types },
-                { label: "难度", key: "difficulty", options: difficulties },
-                { label: "知识点", key: "knowledgePoint", options: knowledgePoints },
-                { label: "阶段", key: "stage", options: stages },
-              ]
-                .find(filter => filter.key === activeFilter)
-                ?.options.map(option => (
+              {(() => {
+                const filterConfig = [
+                  { label: "学科", key: "subject", options: subjects },
+                  { label: "题型", key: "type", options: types },
+                  { label: "难度", key: "difficulty", options: difficulties },
+                  {
+                    label: "知识点",
+                    key: "knowledgePoint",
+                    options: activeFilter === "knowledgePoint"
+                      ? getKnowledgePointsBySubject(selectedFilters.subject)
+                      : knowledgePoints
+                  },
+                  { label: "阶段", key: "stage", options: stages },
+                ].find(filter => filter.key === activeFilter);
+
+                return filterConfig?.options.map(option => (
                   <label key={option} className="flex items-center">
                     <input
                       type="checkbox"
@@ -240,7 +269,8 @@ export default function ExercisePage() {
                     />
                     <span className="ml-2">{option}</span>
                   </label>
-                ))}
+                ));
+              })()}
             </div>
           </div>
         )}
@@ -248,9 +278,9 @@ export default function ExercisePage() {
 
       {/* 题目卡片 */}
       <div className="grid grid-cols-2 gap-4">
-        {paginatedProblems.map((problem, index) => (
+        {paginatedProblems.map((problem) => (
           <Card
-            key={index}
+            key={problem.id}  // 使用唯一标识作为 key
             onClick={(event) => {
               // 检查点击事件的目标是否是卡片的内容区域
               const target = event.target as HTMLElement;
@@ -262,7 +292,7 @@ export default function ExercisePage() {
                 // 如果用户正在选择文本，阻止收回逻辑
                 return;
               }
-              setSelectedProblem(index === selectedProblem ? null : index);
+              setSelectedProblem(problem.id === selectedProblem ? null : problem.id);
             }}
             className="cursor-pointer"
             padding="xs"
@@ -276,20 +306,69 @@ export default function ExercisePage() {
                 <span>•</span>
                 <span>{problem.knowledgePoint.join(", ")}</span>
               </div>
+              {/* 在题目卡片渲染部分修改内容渲染逻辑 */}
               <div className="mt-2 text-gray-800 text-base">
-                {selectedProblem === index ? (
+                {selectedProblem === problem.id ? (
                   <>
-                    <ReactMarkdown
-                      remarkPlugins={[remarkMath]}
-                      rehypePlugins={[rehypeKatex]}
-                      components={{
-                        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
-                      }}
-                    >
-                      {problem.content}
-                    </ReactMarkdown>
+                    {problem.contentType === "文本" ? (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
+                        components={{
+                          p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                        }}
+                      >
+                        {problem.content}
+                      </ReactMarkdown>
+                    ) : (
+                      <div className="space-y-4 overflow-auto">
+                        {Array.isArray(problem.content) ? (
+                          problem.content.map((imgUrl: string, imgIndex: number) => (
+                            <img
+                              key={imgIndex}
+                              src={imgUrl}
+                              alt={`题目内容 ${imgIndex + 1}`}
+                              className="rounded"
+                            />
+                          ))
+                        ) : (
+                          <img
+                            src={problem.content}
+                            alt="题目内容"
+                            className="rounded"
+                          />
+                        )}
+                      </div>
+                    )}
                     <div className="mt-2 font-semibold text-indigo-700">
-                      答案：{problem.answer}
+                      答案：
+                      {problem.contentType === "文本" ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkMath]}
+                          rehypePlugins={[rehypeKatex]}
+                        >
+                          {problem.answer}
+                        </ReactMarkdown>
+                      ) : (
+                        <div className="space-y-4 mt-2 overflow-auto">
+                          {Array.isArray(problem.answer) ? (
+                            problem.answer.map((imgUrl: string, imgIndex: number) => (
+                              <img
+                                key={imgIndex}
+                                src={imgUrl}
+                                alt={`答案图片 ${imgIndex + 1}`}
+                                className="rounded"
+                              />
+                            ))
+                          ) : (
+                            <img
+                              src={problem.answer}
+                              alt="题目答案"
+                              className="rounded"
+                            />
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="mt-4 flex justify-end gap-2">
                       {searchParams.get("from") === "plan" && (
@@ -330,15 +409,35 @@ export default function ExercisePage() {
                     </div>
                   </>
                 ) : (
-                  <ReactMarkdown
-                    remarkPlugins={[remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                    components={{
-                      p: ({ node, ...props }) => <p className="mb-2 inline" {...props} />, // 让 Markdown 渲染成内联
-                    }}
-                  >
-                    {getSafeMarkdownPreview(problem.content, 50)}
-                  </ReactMarkdown>
+                  <>
+                    {problem.contentType === "文本" ? (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
+                        components={{
+                          p: ({ node, ...props }) => <p className="mb-2 inline" {...props} />,
+                        }}
+                      >
+                        {getSafeMarkdownPreview(problem.content, 50)}
+                      </ReactMarkdown>
+                    ) : (
+                      <div className="w-full h-48 overflow-hidden">
+                        {Array.isArray(problem.content) ? (
+                          <img
+                            src={problem.content[0]}
+                            alt="题目预览"
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <img
+                            src={problem.content}
+                            alt="题目预览"
+                            className="w-full h-full object-contain"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

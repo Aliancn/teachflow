@@ -57,7 +57,7 @@ export default function DashboardApp() {
 
               <div className="relative group">
                 <div className="absolute -inset-1 bg-purple-100 rounded-full blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                <div className="relative flex items-center gap-3 border-2 border-purple-200 rounded-full px-6 py-4 bg-white hover:border-purple-300 transition-colors shadow-md">
+                <div className="relative flex group items-center gap-3 border-2 border-purple-200 rounded-full px-6 py-4 bg-white hover:border-purple-300 transition-colors shadow-md">
                   <MagicWandIcon />
                   <input
                     type="text"

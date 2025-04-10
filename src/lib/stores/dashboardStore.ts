@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PPTIcon, SyllabusIcon, ExerciseIcon, MediaIcon , FileTextIcon, BookIcon, StarIcon} from '@/components/icons/DashboardIcons';
+import { PPTIcon, SyllabusIcon, ExerciseIcon, MediaIcon , FileTextIcon, BookIcon, StarIcon, CopyWritingIcon} from '@/components/icons/DashboardIcons';
 
 interface DashboardFeature {
   id: string;
@@ -75,5 +75,12 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
       path: '/home/dashboard/optimize',
       icon: StarIcon,
     },
+    {
+      id: 'copywriting',
+      title: '文案生成',
+      description: '智能生成文案',
+      path: '/home/dashboard/copywriting',
+      icon: CopyWritingIcon,
+    }
   ],
 }));

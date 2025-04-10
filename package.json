@@ -23,6 +23,7 @@
     "@wojtekmaj/react-hooks": "^1.22.0",
     "class-variance-authority": "^0.7.1",
     "dayjs": "^1.11.13",
+    "framer-motion": "^12.6.3",
     "fs": "^0.0.1-security",
     "highlight.js": "^11.11.1",
     "immer": "^10.1.1",

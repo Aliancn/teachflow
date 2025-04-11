@@ -3,14 +3,14 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   try {
     const { prompt } = await request.json()
-    const apiKey = 'Bearer ' + process.env.AUDIO_API_KEY;
+    const apiKey = 'Bearer ' + process.env.NEXT_PUBLIC_SILICONFLOW_TOKEN;
 
     const options = {
       method: 'POST',
       headers: {
         Authorization: apiKey,
         'Content-Type': 'application/json',
-        'Accept': 'audio/mpeg'  // 明确指定接受音频格式
+        'Accept': 'audio/mpeg'
       },
       body: JSON.stringify({
         input: prompt,

@@ -15,6 +15,7 @@ export default function MediaGenerationPage() {
   const [mediaType, setMediaType] = useState('image')
   const [loading, setLoading] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+  const [generatedAudio, setGeneratedAudio] = useState<string | null>(null)
   const [generationHistory, setGenerationHistory] = useState<Array<{
     type: string;
     prompt: string;
@@ -31,7 +32,7 @@ export default function MediaGenerationPage() {
   const mediaTypes = [
     { value: 'image', label: '图片', icon: <PictureOutlined /> },
     { value: 'video', label: '视频', icon: <VideoCameraOutlined /> },
-    { value: 'text', label: '文本', icon: <FileTextOutlined /> },
+    { value: 'audio', label: '语音', icon: <FileTextOutlined /> },
   ]
 
   const handleGenerate = async () => {
@@ -42,7 +43,7 @@ export default function MediaGenerationPage() {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/generate-image', {
+      const response = await fetch(mediaType === 'image' ? '/api/generate-image' : '/api/generate-audio', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -50,23 +51,45 @@ export default function MediaGenerationPage() {
         body: JSON.stringify({ prompt })
       })
       
+      if (!response.ok) {
+        throw new Error(`请求失败: ${response.status}`)
+      }
+
       const data = await response.json()
-      
+
       if (data.error) {
         throw new Error(data.error)
       }
 
-      if (data.images && data.images[0].url) {
+      if (mediaType === 'image' && data.images && data.images[0].url) {
         const imageUrl = data.images[0].url
         setGeneratedImage(imageUrl)
-        
+        setGeneratedAudio(null)
+
         const newHistory = {
           type: mediaType,
           prompt: prompt,
           result: imageUrl,
           timestamp: Date.now()
         }
-        
+
+        const updatedHistory = [newHistory, ...generationHistory].slice(0, MAX_HISTORY_LENGTH)
+        setGenerationHistory(updatedHistory)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('mediaGenerationHistory', JSON.stringify(updatedHistory))
+        }
+      } else if (mediaType === 'audio' && data.audioUrl) {
+        const audioUrl = data.audioUrl
+        setGeneratedAudio(audioUrl)
+        setGeneratedImage(null)
+
+        const newHistory = {
+          type: mediaType,
+          prompt: prompt,
+          result: audioUrl,
+          timestamp: Date.now()
+        }
+
         const updatedHistory = [newHistory, ...generationHistory].slice(0, MAX_HISTORY_LENGTH)
         setGenerationHistory(updatedHistory)
         if (typeof window !== 'undefined') {
@@ -89,6 +112,25 @@ export default function MediaGenerationPage() {
       const link = document.createElement('a');
       link.href = url;
       link.download = `generated-image-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      message.success('导出成功');
+    } catch (error) {
+      console.error('导出失败:', error);
+      message.error('导出失败，请稍后重试');
+    }
+  };
+
+  const handleExportAudio = async (audioUrl: string) => {
+    try {
+      const response = await fetch(audioUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `generated-audio-${Date.now()}.mp3`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -134,7 +176,7 @@ export default function MediaGenerationPage() {
                     placeholder="请输入提示词，描述您想要生成的教学资源内容..."
                     className="w-full"
                   />
-                  <Button 
+                  <Button
                     type="primary"
                     onClick={handleGenerate}
                     loading={loading}
@@ -154,10 +196,10 @@ export default function MediaGenerationPage() {
                 <div className="min-h-[300px] flex flex-col items-center justify-center text-gray-400">
                   {generatedImage ? (
                     <>
-                      <img 
-                        src={generatedImage} 
-                        alt="生成的图片" 
-                        className="max-w-full max-h-[500px] object-contain" 
+                      <img
+                        src={generatedImage}
+                        alt="生成的图片"
+                        className="max-w-full max-h-[500px] object-contain"
                       />
                       <Button
                         icon={<DownloadOutlined />}
@@ -165,6 +207,17 @@ export default function MediaGenerationPage() {
                         className="mt-4"
                       >
                         导出图片
+                      </Button>
+                    </>
+                  ) : generatedAudio ? (
+                    <>
+                      <audio controls src={generatedAudio} className="w-full" />
+                      <Button
+                        icon={<DownloadOutlined />}
+                        onClick={() => handleExportAudio(generatedAudio)}
+                        className="mt-4"
+                      >
+                        导出音频
                       </Button>
                     </>
                   ) : (
@@ -206,6 +259,27 @@ export default function MediaGenerationPage() {
                             删除
                           </Button>
                         </>
+                      ),
+                      item.type === 'audio' && (
+                        <>
+                          <Button
+                            key="export"
+                            type="link"
+                            icon={<DownloadOutlined />}
+                            onClick={() => handleExportAudio(item.result)}
+                          >
+                            导出
+                          </Button>
+                          <Button
+                            key="delete"
+                            type="link"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => handleDeleteHistory(item.timestamp)}
+                          >
+                            删除
+                          </Button>
+                        </>
                       )
                     ]}
                   >
@@ -215,11 +289,14 @@ export default function MediaGenerationPage() {
                       </div>
                       <div className="text-sm">{item.prompt}</div>
                       {item.type === 'image' && (
-                        <img 
-                          src={item.result} 
-                          alt="历史记录" 
+                        <img
+                          src={item.result}
+                          alt="历史记录"
                           className="w-full h-32 object-cover rounded"
                         />
+                      )}
+                      {item.type === 'audio' && (
+                        <audio controls src={item.result} className="w-full" />
                       )}
                     </div>
                   </List.Item>

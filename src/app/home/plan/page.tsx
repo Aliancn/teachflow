@@ -34,7 +34,7 @@ export default function LessonPlanPage() {
                     type: problem["题型"],
                     content: problem["内容"],
                 }));
-                setProblems(combinedData.slice(0, 3));
+                setProblems([]); // 修改这里，不再显示任何初始题目
             } catch (error) {
                 console.error("加载习题数据失败:", error);
             }
@@ -184,17 +184,17 @@ export default function LessonPlanPage() {
                                     </div>
                                 }
                                 content={[
-                                    ...problems, // 初始的三个习题
-                                    ...addedExercises, // 从 exercise 页面添加的习题
+                                    ...problems,
+                                    ...addedExercises,
                                 ]
                                     .map(
                                         (problem, index) => `
 ### **题目 ${index + 1}: ${problem.title || "未命名题目"}**
 **题型**: ${problem.type}  
 **难度**: ${problem.difficulty}  
-**知识点**: ${problem.knowledgePoint.join(", ")}  
+**知识点**: ${Array.isArray(problem.knowledgePoint) ? problem.knowledgePoint.join(", ") : problem.knowledgePoint}  
 
-${problem.content}
+![${problem.title}](${encodeURI(problem.content)})
 
 ------
 `

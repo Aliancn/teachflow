@@ -44,8 +44,6 @@ export default function DashboardApp() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 items-start justify-items-center px-4 ">
-
-
       {step == 'inputSub' && (
         <div className="px-4 pt-36 w-full max-w-2xl">
           <div className="w-full space-y-10">

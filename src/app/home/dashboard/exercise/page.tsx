@@ -174,7 +174,14 @@ function ExerciseContent() {
   };
 
   const handleProblemClick = () => {
-    
+    setSelectedFilters({
+      ...selectedFilters,
+      subject: ['数学'],
+      type: ['选择题'],
+      knowledgePoint: ['集合', '集合的运算'],
+      difficulty: [],
+      stage: []
+    });
   }
 
   return (

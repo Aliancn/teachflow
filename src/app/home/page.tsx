@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from '@/components/ui/button';
 import { VerticalTimeline } from '@/components/VerticalTimeline';
 import { useSyllabusStore } from '@/lib/stores/syllabusStore';
-
+import Loading from '@/components/Loading';
 type featureForm = {
   content: string;
   style: string;
@@ -14,7 +14,7 @@ type featureForm = {
   duration: number;
 }
 
-type Step = 'inputSub' | 'selectFeature' | 'showTimeLine' | 'showResult';
+type Step = 'inputSub' | 'selectFeature' | 'showTimeLine' | 'showResult' | 'loading';
 export default function DashboardApp() {
   const [inputValue, setInputValue] = useState('');
   const [step, setStep] = useState<Step>('inputSub');
@@ -32,18 +32,31 @@ export default function DashboardApp() {
 
 
   const onFeatureSubmit = (params: featureForm) => {
-    setStep('showTimeLine');
+    setStep('loading');
+    const timer = setTimeout(() => {
+      setStep('showTimeLine');
+      clearTimeout(timer);
+    }, 1000);
     console.log(params);
     loadMock();
   }
 
   const onSyllabusSubmit = () => {
-    setStep('showResult');
+    setStep('loading');
+    const timer = setTimeout(() => {
+      setStep('showResult');
+      clearTimeout(timer);
+    }, 1000);
     router.push('/home/plan');
   }
 
   return (
     <div className="min-h-screen grid grid-cols-1 items-start justify-items-center px-4 ">
+      {step == 'loading' &&  (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <Loading />
+        </div>
+      )}
       {step == 'inputSub' && (
         <div className="px-4 pt-36 w-full max-w-2xl">
           <div className="w-full space-y-10">

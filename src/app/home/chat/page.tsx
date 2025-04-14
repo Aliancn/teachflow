@@ -8,7 +8,6 @@ import { useState, useRef, useEffect } from 'react';
 import { fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
 import { getTimestamp } from '@/lib/utils/time';
 import Link from 'next/link';
-import { set } from 'react-hook-form';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
   const { started, messages, sendMessage, appendAIMessageChunk} = useChatStore();
@@ -25,6 +24,7 @@ export default function ChatPage() {
     if (messages.length === 0 && !started) {
       let now = Date.now();
       setWelcomeMsgID(now);
+      console.log('welcomeMsgID', welcomeMsgID);
       const welcomeMsg = {
         id: now,
         content: `👋 欢迎使用 TeachFlow 智能助手！\n\n**我能为您提供以下帮助：**\n\n - 生成教学方案\n- 解答学科问题\n- 优化课程内容\n\n请随时提问～\n\n✨🚀`,
@@ -117,7 +117,7 @@ export default function ChatPage() {
               timestamp={msg.timestamp}
               thinkingContent={msg.thinkContent}
             />
-            {msg.conversationId === welcomeMsgID && (
+            {msg.id === welcomeMsgID && (
               <div className="mt-4 flex gap-3 px-4">
                 <Link
                   href="/home/dashboard/paper"

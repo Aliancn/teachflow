@@ -25,7 +25,7 @@ export default function PaperGenerationPage() {
     const { generatedPaper, loadMockData } = usePaperStore();
     // 在handleSubmit前添加知识点处理方法
     const handleAddKnowledge = () => {
-        if (newKnowledge.trim() && formData.knowledgePoints.length < 10) {
+        if (newKnowledge.trim() && formData.knowledgePoints.length < 5) {
             setFormData({
                 ...formData,
                 knowledgePoints: [...formData.knowledgePoints, { id: Date.now(), name: newKnowledge.trim() }]

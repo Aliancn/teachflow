@@ -119,6 +119,8 @@ export const useSearchStore = create<SearchState>((set) => ({
                         })),
                         videos: mockData.data.videos.map((video) => ({
                             ...video,
+                            duration: video.duration ? parseInt(video.duration) : null,
+                            views: video.views ? parseInt(video.views) : null,
                             id: uuidv4(),
                         }))
                     }

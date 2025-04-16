@@ -29,7 +29,7 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
     {
       id: 'ppt',
       title: 'PPT课件生成',
-      description: '智能生成可编辑的教学演示文稿',
+      description: '智能生成可下载的教学演示文稿',
       path: '/home/dashboard/ppt',
       icon: PPTIcon,
     },

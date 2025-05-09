@@ -100,9 +100,27 @@ function ExerciseContent() {
         console.error("获取数据失败:", error);
       }
     };
-
     fetchProblems();
   }, []);
+
+  // 添加处理从学情分析页面跳转的 useEffect
+  useEffect(() => {
+    // 检查是否从学情分析页面跳转而来
+    if (searchParams.get("from") === "analysis") {
+      const subject = searchParams.get("subject");
+      const knowledgePoint = searchParams.get("knowledgePoint");
+      const type = searchParams.get("type");
+      
+      // 设置筛选条件
+      setSelectedFilters({
+        subject: subject ? [subject] : [],
+        type: type ? [type] : [],
+        knowledgePoint: knowledgePoint ? [knowledgePoint] : [],
+        difficulty: [],
+        stage: []
+      });
+    }
+  }, [searchParams]);
 
   // 更新筛选条件
   const updateFilter = (filterType: keyof typeof selectedFilters, value: string) => {

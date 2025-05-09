@@ -1,0 +1,1127 @@
+{
+    "name": "数学",
+    "icon": "FaRuler,FaCompass",
+    "content": "这是数学课程的学情分析内容，包括学习进度、考试成绩等。",
+    "students": [
+        {
+            "name": "张三",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": false,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 2
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 6
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 85
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 90
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 78
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 88
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 10
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 72
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 25
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 43
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "多选题",
+                    "errorRate": 12
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 43
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 56
+                },
+                {
+                    "type": "选择题",
+                    "errorRate": 78
+                }
+            ]
+        },
+        {
+            "name": "小李",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": true,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 1
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 2
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 1
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 7
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 78
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 23
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 56
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 98
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 20
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 35
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 65
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 55
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 10
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 40
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 55
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 75
+                }
+            ]
+        },
+        {
+            "name": "王五",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": false,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 2
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 4
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 92
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 85
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 88
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 91
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 15
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 45
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 30
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 25
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 20
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 35
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 40
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 45
+                }
+            ]
+        },
+        {
+            "name": "赵六",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 6
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 4
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 76
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 82
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 85
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 80
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 35
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 28
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 42
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 38
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 25
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 38
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 45
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 52
+                }
+            ]
+        },
+        {
+            "name": "孙七",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": false,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 2
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 5
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 65
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 72
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 68
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 75
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 45
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 38
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 52
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 48
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 35
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 48
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 55
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 62
+                }
+            ]
+        },
+        {
+            "name": "周八",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 6
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 7
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 88
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 92
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 85
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 90
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 18
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 25
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 32
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 28
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 15
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 28
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 35
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 42
+                }
+            ]
+        },
+        {
+            "name": "吴九",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": false,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 2
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 3
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 72
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 68
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 75
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 70
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 42
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 35
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 48
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 45
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 32
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 45
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 52
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 58
+                }
+            ]
+        },
+        {
+            "name": "郑十",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": true,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 7
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 6
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 6
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 8
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 95
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 92
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 88
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 94
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 12
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 18
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 22
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 15
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 8
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 15
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 22
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 28
+                }
+            ]
+        },
+        {
+            "name": "陈十一",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": false,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 2
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 1
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 2
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 62
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 58
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 65
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 60
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 52
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 48
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 58
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 55
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 42
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 55
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 62
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 68
+                }
+            ]
+        },
+        {
+            "name": "林十二",
+            "avatar": "https://i.pravatar.cc/50",
+            "chapters": [
+                {
+                    "name": "1. 一元一次方程",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "1.1 一元一次方程的定义",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "1.2 一元一次方程的解法",
+                    "completed": true,
+                    "level": 2
+                },
+                {
+                    "name": "2. 二次函数",
+                    "completed": true,
+                    "level": 1
+                },
+                {
+                    "name": "2.1 二次函数的图像与性质",
+                    "completed": false,
+                    "level": 2
+                },
+                {
+                    "name": "2.2 二次函数的应用",
+                    "completed": false,
+                    "level": 2
+                }
+            ],
+            "studyRecords": [
+                {
+                    "date": "2025-03-20",
+                    "count": 4
+                },
+                {
+                    "date": "2025-03-21",
+                    "count": 5
+                },
+                {
+                    "date": "2025-03-22",
+                    "count": 3
+                },
+                {
+                    "date": "2025-03-23",
+                    "count": 6
+                },
+                {
+                    "date": "2025-03-24",
+                    "count": 4
+                }
+            ],
+            "examScores": [
+                {
+                    "date": "2025-03-01",
+                    "score": 82
+                },
+                {
+                    "date": "2025-03-15",
+                    "score": 78
+                },
+                {
+                    "date": "2025-03-22",
+                    "score": 85
+                },
+                {
+                    "date": "2025-03-29",
+                    "score": 80
+                }
+            ],
+            "errorRates": [
+                {
+                    "topic": "解析几何",
+                    "errorRate": 28
+                },
+                {
+                    "topic": "集合",
+                    "errorRate": 32
+                },
+                {
+                    "topic": "三角函数",
+                    "errorRate": 38
+                },
+                {
+                    "topic": "概率与统计",
+                    "errorRate": 35
+                }
+            ],
+            "questionTypeErrorRates": [
+                {
+                    "type": "选择题",
+                    "errorRate": 22
+                },
+                {
+                    "type": "多选题",
+                    "errorRate": 35
+                },
+                {
+                    "type": "填空题",
+                    "errorRate": 42
+                },
+                {
+                    "type": "解答题",
+                    "errorRate": 48
+                }
+            ]
+        }
+    ]
+}

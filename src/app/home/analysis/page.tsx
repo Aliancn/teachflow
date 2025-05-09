@@ -14,6 +14,7 @@ import {
   BarChart,
   Bar,
 } from "recharts"; // 引入 Recharts
+import { useRouter } from "next/navigation";
 
 interface Chapter {
   name: string;
@@ -58,7 +59,11 @@ interface Course {
   students: Student[];
 }
 
+import { ExerciseRecommender } from "@/components/ExerciseRecommender";
+
 export default function CourseSelectionPage() {
+
+const router = useRouter();
   const [courseData, setCourseData] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedStudentIndex, setSelectedStudentIndex] = useState<number>(0);
@@ -67,10 +72,22 @@ export default function CourseSelectionPage() {
 
   // 加载 JSON 数据
   useEffect(() => {
-    fetch("/courseData.json")
-      .then((response) => response.json())
-      .then((data) => setCourseData(data))
-      .catch((error) => console.error("加载课程数据失败:", error));
+    const loadCourseData = async () => {
+      try {
+        const subjects = ['math', 'english', 'biology'];
+        const responses = await Promise.all(
+          subjects.map(subject => 
+            fetch(`/${subject}CourseData.json`)
+              .then(response => response.json())
+          )
+        );
+        setCourseData(responses);
+      } catch (error) {
+        console.error("加载课程数据失败:", error);
+      }
+    };
+    
+    loadCourseData();
   }, []);
 
   const selectedCourseData = courseData.find(
@@ -428,14 +445,10 @@ export default function CourseSelectionPage() {
             >
               返回科目选择
             </button>
-            <button
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              onClick={() => {
-                window.location.href = "/dashboard/exercise";
-              }}
-            >
-              智能习题推荐
-            </button>
+            <ExerciseRecommender 
+              student={selectedStudent!} 
+              subject={selectedCourse!}
+            />
           </div>
         </div>
       )}

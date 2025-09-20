@@ -23,12 +23,12 @@ async function* fetchAIStreamResult(message: Message[]): AsyncGenerator<{word : 
         model: 'Qwen/QwQ-32B',
         messages: message,
         stream: true, // Enable streaming
-        max_tokens: 512,
+        max_tokens: 24576,
         stop: null,
-        temperature: 0.7,
-        top_p: 0.7,
-        top_k: 50,
-        frequency_penalty: 0.5,
+        temperature: 0.6,
+        top_p: 0.95,
+        top_k: 40,
+        frequency_penalty: 0.0,
         n: 1,
         response_format: { type: 'text' },
     };

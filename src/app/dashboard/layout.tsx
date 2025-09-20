@@ -1,5 +1,8 @@
+"use client" ;
 import NavigationMenu from '@/components/NavigationMenu';
 import HistoryPanel from '@/components/HistoryPanel';
+import {useConversationStore} from '@/lib/stores/chatStore';
+import {useEffect, useState} from 'react';
 export default function DashboardLayout({
   children,
 }: {
@@ -34,20 +37,35 @@ export default function DashboardLayout({
       href: "/dashboard/chat"
     }
   ];
+  const {conversations} = useConversationStore();
+  const [historyItems, setHistoryItems] = useState([
+    { id: 1, title: 'PPT生成 · 数学课件', timestamp: '2025-03-22T10:00:00' },
+    { id: 2, title: '教学大纲 · 物理课程', timestamp: '2025-03-22T14:30:00' },
+    { id: 3, title: 'PPT生成 · 英语课件', timestamp: '2025-03-11T09:15:00' },
+  ]);
+  useEffect(() => {
+    const merged = [
+      ...historyItems.filter(item => item.id <= 3), // 保留初始示例
+      ...conversations.map(con => ({
+        id: con.id,
+        title: con.title,
+        timestamp: con.timestamp
+      }))
+    ].sort((a, b) => 
+      b.timestamp.localeCompare(a.timestamp) // 按时间倒序
+    );
+    setHistoryItems(merged);
+  }, [conversations]); // 监听会话变化
 
   return (
-    <div className="grid grid-cols-[auto_auto_1fr] min-h-screen w-full bg-gray-50">
+    <div className="grid grid-cols-[auto_auto_1fr] h-screen w-full bg-gray-50">
       <NavigationMenu items={navItems} />
 
       {/* 中间历史记录 */}
-      <HistoryPanel items={[
-        { id: 1, title: 'PPT生成 · 数学课件', timestamp: '2025-03-22T10:00:00' },
-        { id: 2, title: '教学大纲 · 物理课程', timestamp: '2025-03-22T14:30:00' },
-        { id: 3, title: 'PPT生成 · 英语课件', timestamp: '2025-03-11T09:15:00' },
-      ]} />
+      <HistoryPanel items={historyItems} />
 
       {/* 主内容区域 */}
-      <main className="p-8 bg-white">
+      <main className="p-8 bg-white overflow-y-auto h-full">
         {children}
       </main>
     </div>

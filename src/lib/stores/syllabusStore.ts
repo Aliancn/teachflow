@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { produce } from 'immer';
-type CardData = {
+export type CardData = {
     id: number;
     conversationId: string;
     index: number;
@@ -19,6 +19,7 @@ type SyllabusState = {
     setGeneratedCards: (cards: CardData[]) => void;
     loadMock: () => Promise<void>;
     setGenerating: (generating: boolean) => void;
+    updateCard: (updatedCard: CardData) => void;
 };
 
 export const useSyllabusStore = create<SyllabusState>((set) => ({
@@ -26,6 +27,12 @@ export const useSyllabusStore = create<SyllabusState>((set) => ({
     generating: false,
     setGeneratedCards: (cards) => set({ generatedCards: cards }),
     setGenerating: (generating:boolean) => set({ generating }),
+    updateCard: (updatedCard) => set(produce((state) => {
+      const index = state.generatedCards.findIndex((c : CardData)=> c.index === updatedCard.index);
+      if (index !== -1) {
+        state.generatedCards[index] = updatedCard;
+      }
+    })),
     loadMock: async () => {
         try {
             const mockData = await import('@/types/cards.mock.json');

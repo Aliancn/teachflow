@@ -1,8 +1,9 @@
-"use client" ;
+"use client";
 import NavigationMenu from '@/components/NavigationMenu';
 import HistoryPanel from '@/components/HistoryPanel';
-import {useConversationStore} from '@/lib/stores/chatStore';
-import {useEffect, useState} from 'react';
+import { useConversationStore } from '@/lib/stores/conversationStore';
+import { useEffect, useState } from 'react';
+import { text } from 'stream/consumers';
 export default function DashboardLayout({
   children,
 }: {
@@ -35,9 +36,18 @@ export default function DashboardLayout({
       ),
       text: "智能助手",
       href: "/dashboard/chat"
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>        
+        </svg>
+      ),
+      text: "习题推荐",
+      href: "/dashboard/exercise"
     }
   ];
-  const {conversations} = useConversationStore();
+  const { conversations } = useConversationStore();
   const [historyItems, setHistoryItems] = useState([
     { id: 1, title: 'PPT生成 · 数学课件', timestamp: '2025-03-22T10:00:00' },
     { id: 2, title: '教学大纲 · 物理课程', timestamp: '2025-03-22T14:30:00' },
@@ -51,7 +61,7 @@ export default function DashboardLayout({
         title: con.title,
         timestamp: con.timestamp
       }))
-    ].sort((a, b) => 
+    ].sort((a, b) =>
       b.timestamp.localeCompare(a.timestamp) // 按时间倒序
     );
     setHistoryItems(merged);

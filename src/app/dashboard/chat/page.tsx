@@ -1,9 +1,11 @@
 "use client";
 import MessageBubble from '@/components/AI/MessageBubble';
-import { useChatStore, useConversationStore } from '@/lib/stores/chatStore';
+import { useChatStore} from '@/lib/stores/chatStore';
+import { useConversationStore } from '@/lib/stores/conversationStore';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useState, useRef, useEffect } from 'react';
 import { fetchAIStreamResult } from '@/lib/agents/silision';
+import { fetchDifyStreamResultW,fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
 import { getTimestamp } from '@/lib/utils/time';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
@@ -21,7 +23,8 @@ export default function ChatPage() {
       setConversationId(Date.now());
       addConversation({
         id: conversationId,
-        title: '新会话' + Math.floor(Math.random() * 100),
+        title: '智能助手' + Math.floor(Math.random() * 100),
+        type: 'agent',
         conversationId: conversationId,
         timestamp: getTimestamp(),
       })
@@ -52,14 +55,17 @@ export default function ChatPage() {
           conversationId: conversationId
         });
         appendAIMessageChunk(aiMsgId, '', true);
-
-        const generator = fetchAIStreamResult([...messages, userMsg].map(msg => ({
-          role: msg.isUser ? 'user' : 'assistant',
+        // siliconflow api 
+        // const generator = fetchAIStreamResult([...messages, userMsg].map(msg => ({
+        //   role: msg.isUser ? 'user' : 'assistant',
+        //   content: msg.content
+        // })));
+        const generator = fetchDifyStreamResultAgent([...messages, userMsg].map(msg => ({
+          role: msg.isUser? 'user' : 'assistant',
           content: msg.content
-        })));
+        })), '');
 
         for await (let chunk of generator) {
-          console.log("回复", chunk);
           if (chunk.thinking) {
             appendAIMessageChunk(aiMsgId, chunk.word, true);
           }
@@ -73,6 +79,8 @@ export default function ChatPage() {
         setLoading(false);
       } finally {
         setLoading(false);
+        // 滑动到底部
+        messagesEndRef.current?.scrollIntoView({ behavior:'smooth' });
       }
     }
   };

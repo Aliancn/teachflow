@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { loadEnvConfig } from '@next/env'
+ 
 import "./globals.css";
+
+const projectDir = process.cwd()
+loadEnvConfig(projectDir)
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <main className="max-w-4xl mx-auto p-6">
-          {children}
-        </main>
+        {children}
       </body>
     </html>
   );

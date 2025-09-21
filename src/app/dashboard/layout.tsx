@@ -1,16 +1,18 @@
 "use client";
+import { useEffect } from 'react';
 import NavigationMenu from '@/components/NavigationMenu';
 import HistoryPanel from '@/components/HistoryPanel';
 import { useConversationStore } from '@/lib/stores/conversationStore';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const showHistory = pathname?.startsWith('/dashboard/syllabus') || pathname?.startsWith('/dashboard/chat') || pathname?.startsWith('/dashboard/ppt');
+  const showHistory = pathname?.startsWith('/dashboard/syllabus') || pathname?.startsWith('/dashboard/chat');
   const navItems = [
     {
       icon: (
@@ -66,26 +68,24 @@ export default function DashboardLayout({
   ]);
   useEffect(() => {
     const merged = [
-      ...historyItems.filter(item => item.id <= 3), // 保留初始示例
+      ...historyItems.filter(item => item.id <= 3),
       ...conversations.map(con => ({
         id: con.id,
         title: con.title,
         timestamp: con.timestamp
       }))
     ].sort((a, b) =>
-      b.timestamp.localeCompare(a.timestamp) // 按时间倒序
+      b.timestamp.localeCompare(a.timestamp)
     );
     setHistoryItems(merged);
-  }, [conversations]); // 监听会话变化
+  }, [conversations]);
 
   return (
     <div className={`grid ${showHistory ? 'grid-cols-[auto_auto_1fr]' : 'grid-cols-[auto_1fr]'} h-screen w-full bg-gray-50`}>
       <NavigationMenu items={navItems} />
 
-      {/* 条件渲染历史记录 */}
       {showHistory && <HistoryPanel items={historyItems} />}
 
-      {/* 主内容区域 */}
       <main className="p-8 bg-white overflow-y-auto h-full">
         {children}
       </main>

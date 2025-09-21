@@ -1,8 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import BackgroundAnimation from "@/components/BackgroundAnimation";
 export default function Home() {
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-center min-h-screen h-screen overflow-hidden w-full gap-8 font-[family-name:var(--font-geist-sans)]">
+    <div className="grid grid-rows-[auto_1fr_auto] items-center min-h-screen h-screen overflow-hidden w-full gap-8 font-[family-name:var(--font-geist-sans)] relative">
+      <div className="absolute inset-0 -z-10">
+        <BackgroundAnimation />
+      </div>
       {/* 顶部导航栏 */}
       <nav className="w-full flex justify-between items-center py-4 border-b border-gray-200 px-6">
         <div className="flex items-center gap-4">
@@ -15,7 +19,7 @@ export default function Home() {
           />
           <span className="text-xl font-bold text-gray-800">TeachFlow</span>
         </div>
-        
+
         {/* 用户信息 */}
         <div className="flex items-center gap-3">
           <Image
@@ -45,7 +49,7 @@ export default function Home() {
       </main>
 
       {/* 页脚 */}
-      <footer className="w-full border-t border-gray-200 py-6 text-sm text-gray-500 px-6">
+      <footer className="w-full border-gray-200 py-3 text-sm text-gray-500 px-6">
         <div className="max-w-4xl mx-auto flex justify-center gap-4">
           <span>&copy; 2024 TeachFlow</span>
           <span>|</span>

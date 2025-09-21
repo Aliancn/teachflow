@@ -37,7 +37,7 @@ export const Card = ({ card }: { card: CardData }) => {
     return (
         <UICard
             className="relative p-4 mb-6 bg-white shadow-sm hover:shadow-md transition-shadow"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
         >
             <TypeBadge type={card.type} />
             {isEditing ? (

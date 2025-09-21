@@ -5,17 +5,6 @@ import Link from 'next/link';
 
 export default function SyllabusResult() {
   const { generatedCards } = useSyllabusStore();
-  // 转换数据格式
-  let total_duration = 0;
-  const timelineCards = generatedCards.map(card => {
-    total_duration += parseInt(card.data.duration);
-    return {
-      ...card,
-      timestamp: total_duration.toString(),
-      buttonLink: '#', // 根据实际需求添加链接
-      buttonText: '查看详情'
-    }
-  });
   return (
     <div className="p-8 bg-white">
       <div className="grid max-w-5xl mx-auto">
@@ -30,10 +19,10 @@ export default function SyllabusResult() {
             </Link>
           </div>
 
-          <VerticalTimeline cards={timelineCards} />
+          <VerticalTimeline cards={generatedCards} />
           {generatedCards.length > 0 && (
             <div className="mt-6 text-sm text-gray-500">
-              总时长：{total_duration}
+              总时长：{generatedCards.reduce((acc, card) => acc + parseInt(card.data.duration), 0)} 分钟
             </div>
           )}
           {generatedCards.length === 0 && (

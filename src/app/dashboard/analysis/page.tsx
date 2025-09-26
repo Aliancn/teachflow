@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { FaRuler, FaCompass, FaFont, FaDna } from "react-icons/fa";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai"; // 引入图标
@@ -15,253 +15,64 @@ import {
   Bar,
 } from "recharts"; // 引入 Recharts
 
+interface Chapter {
+  name: string;
+  completed: boolean;
+  level: number;
+}
+
+interface StudyRecord {
+  date: string;
+  count: number;
+}
+
+interface ExamScore {
+  date: string;
+  score: number;
+}
+
+interface ErrorRate {
+  topic: string;
+  errorRate: number;
+}
+
+interface QuestionTypeErrorRate {
+  type: string;
+  errorRate: number;
+}
+
+interface Student {
+  name: string;
+  avatar: string;
+  chapters: Chapter[];
+  studyRecords: StudyRecord[];
+  examScores: ExamScore[];
+  errorRates: ErrorRate[];
+  questionTypeErrorRates: QuestionTypeErrorRate[];
+}
+
+interface Course {
+  name: string;
+  icon: string;
+  content: string;
+  students: Student[];
+}
+
 export default function CourseSelectionPage() {
+  const [courseData, setCourseData] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [selectedStudentIndex, setSelectedStudentIndex] = useState<number>(0); // 新增状态，用于记录当前选中的学生索引
-  const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false); // 新增状态，用于控制下拉菜单的显示
-  const [showOverallAnalysis, setShowOverallAnalysis] = useState<boolean>(false); // 新增状态，用于控制是否显示整体学情
+  const [selectedStudentIndex, setSelectedStudentIndex] = useState<number>(0);
+  const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const [showOverallAnalysis, setShowOverallAnalysis] = useState<boolean>(false);
 
-  // 示例数据
-  const courseData = [
-    {
-      name: "数学",
-      icon: (
-        <>
-          <FaRuler className="text-4xl text-blue-500" />{" "}
-          <FaCompass className="text-4xl text-blue-500" />
-        </>
-      ), // 数学图标
-      content: "这是数学课程的学情分析内容，包括学习进度、考试成绩等。",
-      students: [
-        {
-          name: "张三",
-          avatar: "https://i.pravatar.cc/50",
-          chapters: [
-            { name: "1. 一元一次方程", completed: true, level: 1 },
-            { name: "1.1 一元一次方程的定义", completed: true, level: 2 },
-            { name: "1.2 一元一次方程的解法", completed: true, level: 2 },
-            { name: "2. 二次函数", completed: false, level: 1 },
-            { name: "2.1 二次函数的图像与性质", completed: true, level: 2 },
-            { name: "2.2 二次函数的应用", completed: false, level: 2 },
-          ],
-          studyRecords: [
-            { date: "2025-03-20", count: 3 },
-            { date: "2025-03-21", count: 5 },
-            { date: "2025-03-22", count: 2 },
-            { date: "2025-03-23", count: 4 },
-            { date: "2025-03-24", count: 6 },
-          ],
-          examScores: [
-            { date: "2025-03-01", score: 85 },
-            { date: "2025-03-15", score: 90 },
-            { date: "2025-03-22", score: 78 },
-            { date: "2025-03-29", score: 88 },
-          ],
-          errorRates: [
-            { topic: "方程", errorRate: 20 },
-            { topic: "函数", errorRate: 35 },
-            { topic: "几何", errorRate: 65 },
-            { topic: "概率", errorRate: 55 },
-          ],
-          questionTypeErrorRates: [
-            { type: "选择", errorRate: 10 },
-            { type: "填空", errorRate: 40 },
-            { type: "判断", errorRate: 55 },
-            { type: "应用", errorRate: 75 },
-          ],
-        },
-        {
-          name: "小李",
-          avatar: "https://i.pravatar.cc/50", // 示例头像 URL
-          chapters: [
-            { name: "1. 一元一次方程", completed: true, level: 1 },
-            { name: "1.1 一元一次方程的定义", completed: true, level: 2 },
-            { name: "1.2 一元一次方程的解法", completed: true, level: 2 },
-            { name: "2. 二次函数", completed: true, level: 1 },
-            { name: "2.1 二次函数的图像与性质", completed: true, level: 2 },
-            { name: "2.2 二次函数的应用", completed: true, level: 2 },
-          ],
-          studyRecords: [
-            { date: "2025-03-20", count: 3 },
-            { date: "2025-03-21", count: 5 },
-            { date: "2025-03-22", count: 2 },
-            { date: "2025-03-23", count: 4 },
-            { date: "2025-03-24", count: 6 },
-          ],
-          examScores: [
-            { date: "2025-03-01", score: 85 },
-            { date: "2025-03-15", score: 90 },
-            { date: "2025-03-22", score: 78 },
-            { date: "2025-03-29", score: 88 },
-          ],
-          errorRates: [
-            { topic: "方程", errorRate: 20 },
-            { topic: "函数", errorRate: 35 },
-            { topic: "几何", errorRate: 65 },
-            { topic: "概率", errorRate: 55 },
-          ],
-          questionTypeErrorRates: [
-            { type: "选择", errorRate: 10 },
-            { type: "填空", errorRate: 40 },
-            { type: "判断", errorRate: 55 },
-            { type: "应用", errorRate: 75 },
-          ],
-        },
-      ],
-    },
-    {
-      name: "英语",
-      icon: <FaFont className="text-4xl text-green-500" />, // 英语图标
-      content: "这是英语课程的学情分析内容，包括词汇量、阅读理解能力等。",
-      students: [
-        {
-          name: "李四",
-          avatar: "https://i.pravatar.cc/50",
-          chapters: [
-            { name: "1. 基础词汇", completed: true, level: 1 },
-            { name: "2. 阅读理解", completed: false, level: 1 },
-            { name: "3. 写作技巧", completed: true, level: 1 },
-          ],
-          studyRecords: [
-            { date: "2025-03-20", count: 3 },
-            { date: "2025-03-21", count: 5 },
-            { date: "2025-03-22", count: 2 },
-            { date: "2025-03-23", count: 4 },
-            { date: "2025-03-24", count: 6 },
-          ],
-          examScores: [
-            { date: "2025-03-01", score: 85 },
-            { date: "2025-03-15", score: 90 },
-            { date: "2025-03-22", score: 78 },
-            { date: "2025-03-29", score: 88 },
-          ],
-          errorRates: [
-            { topic: "单词", errorRate: 20 },
-            { topic: "语法", errorRate: 35 },
-            { topic: "短语", errorRate: 65 },
-            { topic: "理解", errorRate: 55 },
-          ],
-          questionTypeErrorRates: [
-            { type: "完型", errorRate: 10 },
-            { type: "续写", errorRate: 40 },
-            { type: "阅读", errorRate: 55 },
-            { type: "作文", errorRate: 75 },
-          ],
-        },
-        {
-          name: "小章",
-          avatar: "https://i.pravatar.cc/50",
-          chapters: [
-            { name: "1. 基础词汇", completed: true, level: 1 },
-            { name: "2. 阅读理解", completed: false, level: 1 },
-            { name: "3. 写作技巧", completed: false, level: 1 },
-          ],
-          studyRecords: [
-            { date: "2025-03-20", count: 3 },
-            { date: "2025-03-21", count: 5 },
-            { date: "2025-03-22", count: 2 },
-            { date: "2025-03-23", count: 4 },
-            { date: "2025-03-24", count: 6 },
-          ],
-          examScores: [
-            { date: "2025-03-01", score: 85 },
-            { date: "2025-03-15", score: 90 },
-            { date: "2025-03-22", score: 78 },
-            { date: "2025-03-29", score: 88 },
-          ],
-          errorRates: [
-            { topic: "单词", errorRate: 20 },
-            { topic: "语法", errorRate: 35 },
-            { topic: "短语", errorRate: 65 },
-            { topic: "理解", errorRate: 55 },
-          ],
-          questionTypeErrorRates: [
-            { type: "完型", errorRate: 10 },
-            { type: "续写", errorRate: 40 },
-            { type: "阅读", errorRate: 55 },
-            { type: "作文", errorRate: 75 },
-          ],
-        },
-      ],
-    },
-    {
-      name: "生物",
-      icon: <FaDna className="text-4xl text-purple-500" />, // 生物图标
-      content: "这是生物课程的学情分析内容，包括实验报告、知识点掌握情况等。",
-      students: [
-        {
-          name: "王五",
-          avatar: "https://i.pravatar.cc/50",
-          chapters: [
-            { name: "1. 细胞结构", completed: true, level: 1 },
-            { name: "2. 遗传与变异", completed: true, level: 1 },
-            { name: "3. 生物实验", completed: true, level: 1 },
-          ],
-          studyRecords: [
-            { date: "2025-03-20", count: 3 },
-            { date: "2025-03-21", count: 5 },
-            { date: "2025-03-22", count: 2 },
-            { date: "2025-03-23", count: 4 },
-            { date: "2025-03-24", count: 6 },
-          ],
-          examScores: [
-            { date: "2025-03-01", score: 85 },
-            { date: "2025-03-15", score: 90 },
-            { date: "2025-03-22", score: 78 },
-            { date: "2025-03-29", score: 88 },
-          ],
-          errorRates: [
-            { topic: "有氧呼吸", errorRate: 20 },
-            { topic: "光合作用", errorRate: 35 },
-            { topic: "遗传", errorRate: 65 },
-            { topic: "稳态", errorRate: 55 },
-          ],
-          questionTypeErrorRates: [
-            { type: "选择", errorRate: 10 },
-            { type: "填空", errorRate: 40 },
-            { type: "判断", errorRate: 55 },
-            { type: "应用", errorRate: 75 },
-          ],
-        },
-        {
-          name: "小熊",
-          avatar: "https://i.pravatar.cc/50",
-          chapters: [
-            { name: "1. 细胞结构", completed: true, level: 1 },
-            { name: "2. 遗传与变异", completed: true, level: 1 },
-            { name: "3. 生物实验", completed: false, level: 1 },
-          ],
-          studyRecords: [
-            { date: "2025-03-20", count: 3 },
-            { date: "2025-03-21", count: 5 },
-            { date: "2025-03-22", count: 2 },
-            { date: "2025-03-23", count: 4 },
-            { date: "2025-03-24", count: 6 },
-          ],
-          examScores: [
-            { date: "2025-03-01", score: 85 },
-            { date: "2025-03-15", score: 90 },
-            { date: "2025-03-22", score: 78 },
-            { date: "2025-03-29", score: 88 },
-          ],
-          errorRates: [
-            { topic: "有氧呼吸", errorRate: 20 },
-            { topic: "光合作用", errorRate: 35 },
-            { topic: "遗传", errorRate: 65 },
-            { topic: "稳态", errorRate: 55 },
-          ],
-          questionTypeErrorRates: [
-            { type: "选择", errorRate: 10 },
-            { type: "填空", errorRate: 40 },
-            { type: "判断", errorRate: 55 },
-            { type: "应用", errorRate: 75 },
-          ],
-        },
-      ],
-    },
-  ];
+  // 加载 JSON 数据
+  useEffect(() => {
+    fetch("/courseData.json")
+      .then((response) => response.json())
+      .then((data) => setCourseData(data))
+      .catch((error) => console.error("加载课程数据失败:", error));
+  }, []);
 
-  // 查找选中课程的详细信息
   const selectedCourseData = courseData.find(
     (course) => course.name === selectedCourse
   );
@@ -275,7 +86,6 @@ export default function CourseSelectionPage() {
       {!selectedCourse && (
         <>
           <h1 className="text-3xl font-bold mb-8">科目选择</h1>
-          {/* 科目选择界面 */}
           <div className="grid grid-cols-3 gap-6 mt-25">
             {courseData.map((course, index) => (
               <Card
@@ -283,7 +93,19 @@ export default function CourseSelectionPage() {
                 className="cursor-pointer hover:shadow-lg transition flex flex-col items-center justify-between p-6 h-48 w-48 mx-auto"
                 onClick={() => setSelectedCourse(course.name)}
               >
-                <div className="flex-grow flex items-center justify-center">{course.icon}</div>
+                <div className="flex-grow flex items-center justify-center">
+                  {course.icon === "FaRuler,FaCompass" && (
+                    <>
+                      <FaRuler className="text-4xl text-blue-500" />
+                      <FaCompass className="text-4xl text-blue-500" />
+                    </>
+                  )}
+                  {course.icon === "FaFont" && (
+                    <FaFont className="text-4xl text-green-500" />
+                  )}{course.icon === "FaDna" && (
+                    <FaDna className="text-4xl text-purple-500" />
+                  )}
+                </div>
                 <h2 className="text-lg font-bold text-center mt-4">{course.name}</h2>
               </Card>
             ))}
@@ -293,7 +115,7 @@ export default function CourseSelectionPage() {
 
       {/* 如果选择了课程，显示对应的学情分析内容 */}
       {selectedCourse && selectedCourseData && (
-        <div className="mt-8 p-6 border rounded-lg shadow-md space-y-6">
+        <div className="mt-8 p-6  rounded-lg shadow-md space-y-6">
           {/* 添加标题 */}
           <h1 className="text-3xl font-bold mb-4">
             {selectedCourse}学情分析
@@ -315,11 +137,12 @@ export default function CourseSelectionPage() {
             {/* 学生下拉列表 */}
             {isDropdownVisible && selectedCourseData.students?.length > 1 && (
               <div className="absolute left=0 mt-2 w-40 bg-white border rounded shadow-md">
-                {selectedCourseData.students.map((student, index) => (
+                {selectedCourseData?.students.map((student, index) => (
                   <div
                     key={index}
-                    className={`px-4 py-2 cursor-pointer ${index === selectedStudentIndex ? "bg-blue-600 text-white" : "hover:bg-gray-200"
-                      }`}
+                    className={`px-4 py-2 cursor-pointer ${
+                      index === selectedStudentIndex ? "bg-blue-600 text-white" : "hover:bg-gray-200"
+                    }`}
                     onClick={() => {
                       setSelectedStudentIndex(index); // 更新选中的学生
                       setDropdownVisible(false); // 选择后关闭列表
@@ -343,7 +166,7 @@ export default function CourseSelectionPage() {
             </button>
           </div>
 
-          {/* 整体学情卡片 */}
+          {/* 班级成员卡片 */}
           {showOverallAnalysis && (
             <Card className="p-6">
               <h2 className="text-xl font-bold mb-4">班级成员</h2>
@@ -363,8 +186,108 @@ export default function CourseSelectionPage() {
                 ))}
               </div>
             </Card>
+
           )}
 
+          {/* 章节任务点整体完成进度卡片 */}
+          {showOverallAnalysis && (
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4">章节任务点</h2>
+              <div className="text-lg text-gray-700">
+                {(() => {
+                  const totalCompletionRates = selectedCourseData.students.map((student) => {
+                    const completedChapters = student.chapters.filter((chapter) => chapter.completed).length;
+                    const totalChapters = student.chapters.length;
+                    return completedChapters / totalChapters;
+                  });
+
+                  const averageCompletionRate =
+                    totalCompletionRates.reduce((sum, rate) => sum + rate, 0) / totalCompletionRates.length;
+
+                  return `平均完成率：${(averageCompletionRate * 100).toFixed(2)}%`;
+                })()}
+              </div>
+            </Card>
+          )}
+
+          {/* 班级均分卡片 */}
+          {showOverallAnalysis && (
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4">班级均分</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart
+                  data={selectedCourseData.students[0].examScores.map((_, index) => {
+                    const date = selectedCourseData.students[0].examScores[index].date;
+                    const averageScore =
+                      selectedCourseData.students.reduce((sum, student) => sum + student.examScores[index].score, 0) /
+                      selectedCourseData.students.length;
+                    return { date, averageScore: parseFloat(averageScore.toFixed(2)) };
+                  })}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="averageScore" stroke="#8884d8" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+          )}
+
+          {/* 班级平均知识点错误率卡片 */}
+          {showOverallAnalysis && (
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4">平均知识点错误率</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={selectedCourseData.students[0].errorRates.map((topic, index) => {
+                    const averageErrorRate =
+                      selectedCourseData.students.reduce(
+                        (sum, student) => sum + student.errorRates[index].errorRate,
+                        0
+                      ) / selectedCourseData.students.length;
+                    return { topic: topic.topic, averageErrorRate: parseFloat(averageErrorRate.toFixed(2)) };
+                  })}
+                  layout="vertical"
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="topic" />
+                  <Tooltip />
+                  <Bar dataKey="averageErrorRate" fill="#ff9999" barSize={15} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          )}
+
+          {/* 班级平均题型错误率卡片 */}
+          {showOverallAnalysis && (
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4">平均题型错误率</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={selectedCourseData.students[0].questionTypeErrorRates.map((type, index) => {
+                    const averageErrorRate =
+                      selectedCourseData.students.reduce(
+                        (sum, student) => sum + student.questionTypeErrorRates[index].errorRate,
+                        0
+                      ) / selectedCourseData.students.length;
+                    return { type: type.type, averageErrorRate: parseFloat(averageErrorRate.toFixed(2)) };
+                  })}
+                  layout="vertical"
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="type" />
+                  <Tooltip />
+                  <Bar dataKey="averageErrorRate" fill="#87CEEB" barSize={15} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          )}
 
           {/* 个人学情内容 */}
           {!showOverallAnalysis && selectedStudent && (
@@ -421,7 +344,7 @@ export default function CourseSelectionPage() {
               {/* 学习记录卡片 */}
               {selectedStudent && (
                 <Card className="p-6">
-                  <h2 className="text-xl font-bold mb-4">学习记录</h2>
+                  <h2 className="text-xl font-bold mb-4">在线学习次数记录</h2>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={selectedStudent.studyRecords}

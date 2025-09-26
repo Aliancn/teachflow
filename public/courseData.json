@@ -1,0 +1,635 @@
+[
+    {
+        "name": "数学",
+        "icon": "FaRuler,FaCompass",
+        "content": "这是数学课程的学情分析内容，包括学习进度、考试成绩等。",
+        "students": [
+            {
+                "name": "张三",
+                "avatar": "https://i.pravatar.cc/50",
+                "chapters": [
+                    {
+                        "name": "1. 一元一次方程",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "1.1 一元一次方程的定义",
+                        "completed": true,
+                        "level": 2
+                    },
+                    {
+                        "name": "1.2 一元一次方程的解法",
+                        "completed": true,
+                        "level": 2
+                    },
+                    {
+                        "name": "2. 二次函数",
+                        "completed": false,
+                        "level": 1
+                    },
+                    {
+                        "name": "2.1 二次函数的图像与性质",
+                        "completed": true,
+                        "level": 2
+                    },
+                    {
+                        "name": "2.2 二次函数的应用",
+                        "completed": false,
+                        "level": 2
+                    }
+                ],
+                "studyRecords": [
+                    {
+                        "date": "2025-03-20",
+                        "count": 3
+                    },
+                    {
+                        "date": "2025-03-21",
+                        "count": 5
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "count": 2
+                    },
+                    {
+                        "date": "2025-03-23",
+                        "count": 4
+                    },
+                    {
+                        "date": "2025-03-24",
+                        "count": 6
+                    }
+                ],
+                "examScores": [
+                    {
+                        "date": "2025-03-01",
+                        "score": 85
+                    },
+                    {
+                        "date": "2025-03-15",
+                        "score": 90
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "score": 78
+                    },
+                    {
+                        "date": "2025-03-29",
+                        "score": 88
+                    }
+                ],
+                "errorRates": [
+                    {
+                        "topic": "方程",
+                        "errorRate": 10
+                    },
+                    {
+                        "topic": "函数",
+                        "errorRate": 72
+                    },
+                    {
+                        "topic": "几何",
+                        "errorRate": 25
+                    },
+                    {
+                        "topic": "概率",
+                        "errorRate": 43
+                    }
+                ],
+                "questionTypeErrorRates": [
+                    {
+                        "type": "选择",
+                        "errorRate": 12
+                    },
+                    {
+                        "type": "填空",
+                        "errorRate": 43
+                    },
+                    {
+                        "type": "判断",
+                        "errorRate": 56
+                    },
+                    {
+                        "type": "应用",
+                        "errorRate": 78
+                    }
+                ]
+            },
+            {
+                "name": "小李",
+                "avatar": "https://i.pravatar.cc/50",
+                "chapters": [
+                    {
+                        "name": "1. 一元一次方程",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "1.1 一元一次方程的定义",
+                        "completed": true,
+                        "level": 2
+                    },
+                    {
+                        "name": "1.2 一元一次方程的解法",
+                        "completed": true,
+                        "level": 2
+                    },
+                    {
+                        "name": "2. 二次函数",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "2.1 二次函数的图像与性质",
+                        "completed": true,
+                        "level": 2
+                    },
+                    {
+                        "name": "2.2 二次函数的应用",
+                        "completed": true,
+                        "level": 2
+                    }
+                ],
+                "studyRecords": [
+                    {
+                        "date": "2025-03-20",
+                        "count": 1
+                    },
+                    {
+                        "date": "2025-03-21",
+                        "count": 2
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "count": 1
+                    },
+                    {
+                        "date": "2025-03-23",
+                        "count": 3
+                    },
+                    {
+                        "date": "2025-03-24",
+                        "count": 7
+                    }
+                ],
+                "examScores": [
+                    {
+                        "date": "2025-03-01",
+                        "score": 78
+                    },
+                    {
+                        "date": "2025-03-15",
+                        "score": 23
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "score": 56
+                    },
+                    {
+                        "date": "2025-03-29",
+                        "score": 98
+                    }
+                ],
+                "errorRates": [
+                    {
+                        "topic": "方程",
+                        "errorRate": 20
+                    },
+                    {
+                        "topic": "函数",
+                        "errorRate": 35
+                    },
+                    {
+                        "topic": "几何",
+                        "errorRate": 65
+                    },
+                    {
+                        "topic": "概率",
+                        "errorRate": 55
+                    }
+                ],
+                "questionTypeErrorRates": [
+                    {
+                        "type": "选择",
+                        "errorRate": 10
+                    },
+                    {
+                        "type": "填空",
+                        "errorRate": 40
+                    },
+                    {
+                        "type": "判断",
+                        "errorRate": 55
+                    },
+                    {
+                        "type": "应用",
+                        "errorRate": 75
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "英语",
+        "icon": "FaFont",
+        "content": "这是英语课程的学情分析内容，包括词汇量、阅读理解能力等。",
+        "students": [
+            {
+                "name": "李四",
+                "avatar": "https://i.pravatar.cc/50",
+                "chapters": [
+                    {
+                        "name": "1. 基础词汇",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "2. 阅读理解",
+                        "completed": false,
+                        "level": 1
+                    },
+                    {
+                        "name": "3. 写作技巧",
+                        "completed": true,
+                        "level": 1
+                    }
+                ],
+                "studyRecords": [
+                    {
+                        "date": "2025-03-20",
+                        "count": 3
+                    },
+                    {
+                        "date": "2025-03-21",
+                        "count": 5
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "count": 2
+                    },
+                    {
+                        "date": "2025-03-23",
+                        "count": 4
+                    },
+                    {
+                        "date": "2025-03-24",
+                        "count": 6
+                    }
+                ],
+                "examScores": [
+                    {
+                        "date": "2025-03-01",
+                        "score": 85
+                    },
+                    {
+                        "date": "2025-03-15",
+                        "score": 90
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "score": 78
+                    },
+                    {
+                        "date": "2025-03-29",
+                        "score": 88
+                    }
+                ],
+                "errorRates": [
+                    {
+                        "topic": "单词",
+                        "errorRate": 10
+                    },
+                    {
+                        "topic": "语法",
+                        "errorRate": 72
+                    },
+                    {
+                        "topic": "短语",
+                        "errorRate": 25
+                    },
+                    {
+                        "topic": "理解",
+                        "errorRate": 43
+                    }
+                ],
+                "questionTypeErrorRates": [
+                    {
+                        "type": "完型",
+                        "errorRate": 12
+                    },
+                    {
+                        "type": "续写",
+                        "errorRate": 43
+                    },
+                    {
+                        "type": "阅读",
+                        "errorRate": 56
+                    },
+                    {
+                        "type": "作文",
+                        "errorRate": 78
+                    }
+                ]
+            },
+            {
+                "name": "小章",
+                "avatar": "https://i.pravatar.cc/50",
+                "chapters": [
+                    {
+                        "name": "1. 基础词汇",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "2. 阅读理解",
+                        "completed": false,
+                        "level": 1
+                    },
+                    {
+                        "name": "3. 写作技巧",
+                        "completed": false,
+                        "level": 1
+                    }
+                ],
+                "studyRecords": [
+                    {
+                        "date": "2025-03-20",
+                        "count": 3
+                    },
+                    {
+                        "date": "2025-03-21",
+                        "count": 5
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "count": 2
+                    },
+                    {
+                        "date": "2025-03-23",
+                        "count": 4
+                    },
+                    {
+                        "date": "2025-03-24",
+                        "count": 6
+                    }
+                ],
+                "examScores": [
+                    {
+                        "date": "2025-03-01",
+                        "score": 85
+                    },
+                    {
+                        "date": "2025-03-15",
+                        "score": 90
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "score": 78
+                    },
+                    {
+                        "date": "2025-03-29",
+                        "score": 88
+                    }
+                ],
+                "errorRates": [
+                    {
+                        "topic": "单词",
+                        "errorRate": 10
+                    },
+                    {
+                        "topic": "语法",
+                        "errorRate": 72
+                    },
+                    {
+                        "topic": "短语",
+                        "errorRate": 25
+                    },
+                    {
+                        "topic": "理解",
+                        "errorRate": 43
+                    }
+                ],
+                "questionTypeErrorRates": [
+                    {
+                        "type": "完型",
+                        "errorRate": 12
+                    },
+                    {
+                        "type": "续写",
+                        "errorRate": 43
+                    },
+                    {
+                        "type": "阅读",
+                        "errorRate": 56
+                    },
+                    {
+                        "type": "作文",
+                        "errorRate": 78
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "生物",
+        "icon": "FaDna",
+        "content": "这是生物课程的学情分析内容，包括实验报告、知识点掌握情况等。",
+        "students": [
+            {
+                "name": "王五",
+                "avatar": "https://i.pravatar.cc/50",
+                "chapters": [
+                    {
+                        "name": "1. 细胞结构",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "2. 遗传与变异",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "3. 生态系统",
+                        "completed": true,
+                        "level": 1
+                    }
+                ],
+                "studyRecords": [
+                    {
+                        "date": "2025-03-20",
+                        "count": 3
+                    },
+                    {
+                        "date": "2025-03-21",
+                        "count": 5
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "count": 2
+                    },
+                    {
+                        "date": "2025-03-23",
+                        "count": 4
+                    },
+                    {
+                        "date": "2025-03-24",
+                        "count": 6
+                    }
+                ],
+                "examScores": [
+                    {
+                        "date": "2025-03-01",
+                        "score": 85
+                    },
+                    {
+                        "date": "2025-03-15",
+                        "score": 90
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "score": 78
+                    },
+                    {
+                        "date": "2025-03-29",
+                        "score": 88
+                    }
+                ],
+                "errorRates": [
+                    {
+                        "topic": "有氧呼吸",
+                        "errorRate": 10
+                    },
+                    {
+                        "topic": "光合作用",
+                        "errorRate": 72
+                    },
+                    {
+                        "topic": "遗传",
+                        "errorRate": 25
+                    },
+                    {
+                        "topic": "稳态",
+                        "errorRate": 43
+                    }
+                ],
+                "questionTypeErrorRates": [
+                    {
+                        "type": "选择",
+                        "errorRate": 12
+                    },
+                    {
+                        "type": "填空",
+                        "errorRate": 43
+                    },
+                    {
+                        "type": "判断",
+                        "errorRate": 56
+                    },
+                    {
+                        "type": "应用",
+                        "errorRate": 78
+                    }
+                ]
+            },
+            {
+                "name": "小熊",
+                "avatar": "https://i.pravatar.cc/50",
+                "chapters": [
+                    {
+                        "name": "1. 细胞结构",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "2. 遗传与变异",
+                        "completed": true,
+                        "level": 1
+                    },
+                    {
+                        "name": "3. 生态系统",
+                        "completed": false,
+                        "level": 1
+                    }
+                ],
+                "studyRecords": [
+                    {
+                        "date": "2025-03-20",
+                        "count": 3
+                    },
+                    {
+                        "date": "2025-03-21",
+                        "count": 5
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "count": 2
+                    },
+                    {
+                        "date": "2025-03-23",
+                        "count": 4
+                    },
+                    {
+                        "date": "2025-03-24",
+                        "count": 6
+                    }
+                ],
+                "examScores": [
+                    {
+                        "date": "2025-03-01",
+                        "score": 85
+                    },
+                    {
+                        "date": "2025-03-15",
+                        "score": 90
+                    },
+                    {
+                        "date": "2025-03-22",
+                        "score": 78
+                    },
+                    {
+                        "date": "2025-03-29",
+                        "score": 88
+                    }
+                ],
+                "errorRates": [
+                    {
+                        "topic": "有氧呼吸",
+                        "errorRate": 10
+                    },
+                    {
+                        "topic": "光合作用",
+                        "errorRate": 72
+                    },
+                    {
+                        "topic": "遗传",
+                        "errorRate": 25
+                    },
+                    {
+                        "topic": "稳态",
+                        "errorRate": 43
+                    }
+                ],
+                "questionTypeErrorRates": [
+                    {
+                        "type": "选择",
+                        "errorRate": 12
+                    },
+                    {
+                        "type": "填空",
+                        "errorRate": 43
+                    },
+                    {
+                        "type": "判断",
+                        "errorRate": 56
+                    },
+                    {
+                        "type": "应用",
+                        "errorRate": 78
+                    }
+                ]
+            }
+        ]
+    }
+]

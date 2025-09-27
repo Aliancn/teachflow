@@ -8,6 +8,11 @@ export default function ExercisePage() {
   const searchParams = useSearchParams();
   const [selectedProblem, setSelectedProblem] = useState<number | null>(null);
   const [problems, setProblems] = useState<any[]>([]);
+  const [knowledgePoints, setKnowledgePoints] = useState<string[]>([]); // 动态知识点
+  const [subjects, setSubjects] = useState<string[]>([]); // 动态学科
+  const [types, setTypes] = useState<string[]>([]); // 动态题型
+  const [difficulties, setDifficulties] = useState<string[]>([]); // 动态难度
+  const [stages, setStages] = useState<string[]>([]); // 动态阶段
   const [selectedFilters, setSelectedFilters] = useState<{
     subject: string[];
     type: string[];
@@ -27,13 +32,24 @@ export default function ExercisePage() {
 
   // 获取 JSON 数据
   useEffect(() => {
-    fetch("/mathProblems.json")
-      .then(response => response.json())
-      .then(data => {
-        const formattedProblems = data.map((problem: any) => ({
+    const fetchProblems = async () => {
+      try {
+        const [mathResponse, englishResponse] = await Promise.all([
+          fetch("/mathProblems.json"),
+          fetch("/englishProblems.json"),
+        ]);
+        const [mathData, englishData] = await Promise.all([
+          mathResponse.json(),
+          englishResponse.json(),
+        ]);
+
+        // 合并两个数据集
+        const combinedData = [...mathData, ...englishData];
+
+        const formattedProblems = combinedData.map((problem: any) => ({
           title: problem["标题"],
           subject: problem["学科"],
-          knowledgePoint: problem["知识点"],
+          knowledgePoint: problem["知识点"], // 支持多个知识点（数组）
           difficulty: problem["难度"],
           stage: problem["阶段"],
           type: problem["题型"],
@@ -41,8 +57,28 @@ export default function ExercisePage() {
           answer: problem["答案"],
         }));
         setProblems(formattedProblems);
-      })
-      .catch(error => console.error("获取数据失败:", error));
+
+        // 动态提取属性值
+        const uniqueSubjects = Array.from(new Set(combinedData.map((problem: any) => problem["学科"])));
+        const uniqueTypes = Array.from(new Set(combinedData.map((problem: any) => problem["题型"])));
+        const uniqueDifficulties = Array.from(new Set(combinedData.map((problem: any) => problem["难度"])));
+        const uniqueStages = Array.from(new Set(combinedData.map((problem: any) => problem["阶段"])));
+        const uniqueKnowledgePoints = Array.from(
+          new Set(combinedData.flatMap((problem: any) => problem["知识点"])) // 展平知识点数组
+        );
+
+        // 设置动态属性值
+        setSubjects(uniqueSubjects);
+        setTypes(uniqueTypes);
+        setDifficulties(uniqueDifficulties);
+        setStages(uniqueStages);
+        setKnowledgePoints(uniqueKnowledgePoints as string[]);
+      } catch (error) {
+        console.error("获取数据失败:", error);
+      }
+    };
+
+    fetchProblems();
   }, []);
 
   // 更新筛选条件
@@ -62,7 +98,8 @@ export default function ExercisePage() {
       (selectedFilters.subject.length === 0 || selectedFilters.subject.includes(problem.subject)) &&
       (selectedFilters.type.length === 0 || selectedFilters.type.includes(problem.type)) &&
       (selectedFilters.difficulty.length === 0 || selectedFilters.difficulty.includes(problem.difficulty)) &&
-      (selectedFilters.knowledgePoint.length === 0 || selectedFilters.knowledgePoint.includes(problem.knowledgePoint)) &&
+      (selectedFilters.knowledgePoint.length === 0 ||
+        selectedFilters.knowledgePoint.some(knowledge => problem.knowledgePoint.includes(knowledge))) && // 检查知识点是否匹配
       (selectedFilters.stage.length === 0 || selectedFilters.stage.includes(problem.stage))
     );
   });
@@ -87,22 +124,38 @@ export default function ExercisePage() {
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">习题推荐</h1>
 
+      {/* 智能推荐 */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">智能推荐</h2>
+        <div className="flex flex-col gap-4">
+          <textarea
+            className="w-full p-2 border rounded"
+            placeholder="请输入提示词，让AI为您推荐习题..."
+            rows={3}
+          ></textarea>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            智能习题推荐
+          </button>
+        </div>
+      </div>
+
       {/* 筛选标签组 */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">筛选条件</h2>
+        <h2 className="text-xl font-semibold mb-4">习题筛选</h2>
         <div className="flex gap-4">
+          <span className="font-medium self-center">筛选条件：</span>
           {/* 筛选按钮 */}
           {[
-            { label: "学科", key: "subject" as keyof typeof selectedFilters, options: ["数学"] },
-            { label: "题型", key: "type" as keyof typeof selectedFilters, options: ["选择题", "填空题", "解答题"] },
-            { label: "难度", key: "difficulty" as keyof typeof selectedFilters, options: ["入门", "简单", "普通", "困难", "竞赛"] },
-            { label: "知识点", key: "knowledgePoint" as keyof typeof selectedFilters, options: ["解方程"] },
-            { label: "阶段", key: "stage" as keyof typeof selectedFilters, options: ["课前预习", "承前启后", "随堂检测", "复习巩固", "竞赛"] },
+            { label: "学科", key: "subject" as keyof typeof selectedFilters, options: subjects },
+            { label: "题型", key: "type" as keyof typeof selectedFilters, options: types },
+            { label: "难度", key: "difficulty", options: difficulties },
+            { label: "知识点", key: "knowledgePoint" as keyof typeof selectedFilters, options: knowledgePoints },
+            { label: "阶段", key: "stage" as keyof typeof selectedFilters, options: stages },
           ].map(filter => (
             <button
               key={filter.key}
-              className={`px-4 py-2 rounded ${activeFilter === filter.key ? "bg-blue-700 text-white" : "bg-gray-200"}`}
-              onClick={() => setActiveFilter(activeFilter === filter.key ? null : filter.key)}
+              className={`px-4 py-2 rounded ${activeFilter === filter.key ? "bg-blue-700 text-white " : "bg-gray-200"}`}
+              onClick={() => setActiveFilter(activeFilter === filter.key ? null : filter.key as keyof typeof selectedFilters)}
             >
               {filter.label}
             </button>
@@ -111,13 +164,13 @@ export default function ExercisePage() {
 
         {/* 筛选选项 */}
         {activeFilter && (
-          <div className="mt-4 p-4 border rounded bg-gray-100">
+          <div className="mt-4 p-4 rounded bg-gray-100">
             {[
-              { label: "学科", key: "subject", options: ["数学"] },
-              { label: "题型", key: "type", options: ["选择题", "填空题", "解答题"] },
-              { label: "难度", key: "difficulty", options: ["入门", "简单", "普通", "困难", "竞赛"] },
-              { label: "知识点", key: "knowledgePoint", options: ["解方程"] },
-              { label: "阶段", key: "stage", options: ["课前预习", "承前启后", "随堂检测", "复习巩固", "竞赛"] },
+              { label: "学科", key: "subject", options: subjects },
+              { label: "题型", key: "type", options: types },
+              { label: "难度", key: "difficulty", options: difficulties },
+              { label: "知识点", key: "knowledgePoint", options: knowledgePoints },
+              { label: "阶段", key: "stage", options: stages },
             ]
               .find(filter => filter.key === activeFilter)
               ?.options.map(option => (
@@ -149,7 +202,7 @@ export default function ExercisePage() {
                 <span>•</span>
                 <span>{problem.difficulty}</span>
                 <span>•</span>
-                <span>{problem.knowledgePoint}</span>
+                <span>{problem.knowledgePoint.join(", ")}</span> {/* 显示多个知识点 */}
                 <span>•</span>
                 <span>{problem.stage}</span>
               </div>
@@ -162,7 +215,7 @@ export default function ExercisePage() {
                     </div>
                   </>
                 ) : (
-                  <p className="text-gray-600">{problem.content.slice(0, 50)}</p>
+                  <p className="text-gray-600">{problem.content.slice(0, 50)}...</p>
                 )}
               </div>
             </div>
@@ -181,8 +234,8 @@ export default function ExercisePage() {
         </button>
         <div>
           第{" "}
-            <label className="sr-only" htmlFor="page-input">跳转到页码</label>
-            <input
+          <label className="sr-only" htmlFor="page-input">跳转到页码</label>
+          <input
             id="page-input"
             type="number"
             value={currentPage}
@@ -191,7 +244,7 @@ export default function ExercisePage() {
             min={1}
             max={totalPages}
             placeholder="页码"
-            />{" "}
+          />{" "}
           页，共 {totalPages} 页
         </div>
         <button

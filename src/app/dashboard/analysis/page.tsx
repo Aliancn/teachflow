@@ -124,7 +124,7 @@ export default function CourseSelectionPage() {
           <div className="relative mb-4">
             {/* “个人学情”按钮 */}
             <button
-              className="px-4 py-2 bg-blue-600 text-white rounded"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               onClick={() => {
                 setDropdownVisible(!isDropdownVisible);
                 setShowOverallAnalysis(false);
@@ -140,9 +140,8 @@ export default function CourseSelectionPage() {
                 {selectedCourseData?.students.map((student, index) => (
                   <div
                     key={index}
-                    className={`px-4 py-2 cursor-pointer ${
-                      index === selectedStudentIndex ? "bg-blue-600 text-white" : "hover:bg-gray-200"
-                    }`}
+                    className={`px-4 py-2 cursor-pointer ${index === selectedStudentIndex ? "bg-blue-600 text-white" : "hover:bg-gray-200"
+                      }`}
                     onClick={() => {
                       setSelectedStudentIndex(index); // 更新选中的学生
                       setDropdownVisible(false); // 选择后关闭列表
@@ -156,7 +155,7 @@ export default function CourseSelectionPage() {
 
             {/* “整体学情”按钮 */}
             <button
-              className="ml-8 px-4 py-2 bg-blue-600 text-white rounded"
+              className="ml-8 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               onClick={() => {
                 setShowOverallAnalysis(true); // 切换到整体学情
                 setDropdownVisible(false); // 隐藏下拉菜单
@@ -421,14 +420,23 @@ export default function CourseSelectionPage() {
             </>
           )}
 
-
-          {/* 返回按钮 */}
-          <button
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-600"
-            onClick={() => setSelectedCourse(null)}
-          >
-            返回科目选择
-          </button>
+          {/* 返回按钮和智能习题推荐按钮 */}
+          <div className="mt-4 flex space-x-4">
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => setSelectedCourse(null)}
+            >
+              返回科目选择
+            </button>
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => {
+                window.location.href = "/dashboard/exercise";
+              }}
+            >
+              智能习题推荐
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -145,7 +145,7 @@ export default function BackgroundAnimation() {
             linePositions[lineIdx++] = p2.y;
             linePositions[lineIdx++] = p2.z;
     
-            const alpha = 1 - dist / maxDistance;
+            const alpha = (1.5 - dist / maxDistance);
             const color = new THREE.Color(0x818cf8);
             lineColors[colorIdx++] = color.r * alpha;
             lineColors[colorIdx++] = color.g * alpha;

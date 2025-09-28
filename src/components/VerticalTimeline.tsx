@@ -3,7 +3,7 @@ import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, 
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { useSyllabusStore, CardData } from '@/lib/stores/syllabusStore';
 import { CSS } from '@dnd-kit/utilities';
-import { useState  , useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 interface VerticalTimelineProps {
@@ -36,22 +36,20 @@ export function VerticalTimeline({ cards }: VerticalTimelineProps) {
     const { updateCardOrder } = useSyllabusStore();
     const [totalTime, setTotalTime] = useState<number[]>([]);
     useEffect(() => {
-        // 计算时长累计数列
         let prevTime = 0;
         const newTotalTime = cards.map(card => {
             const duration = parseInt(card.data.duration);
             return prevTime += duration;
         })
-        console.log("totalTime ", newTotalTime);
         setTotalTime(newTotalTime);
     }, [cards]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
-          activationConstraint: {
-            delay: 250,
-            tolerance: 5
-          }
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5
+            }
         }),
         useSensor(KeyboardSensor)
     );
@@ -68,15 +66,15 @@ export function VerticalTimeline({ cards }: VerticalTimelineProps) {
             const newIndex = cards.findIndex(card => card.id === over.id);
             const newCards = arrayMove(cards, oldIndex, newIndex);
             updateCardOrder(newCards.map(card => card.id));
+            // 计算时长累计数列
+            let prevTime = 0;
+            const newTotalTime = newCards.map(card => {
+                const duration = parseInt(card.data.duration);
+                return prevTime += duration;
+            })
+            setTotalTime(newTotalTime);
         }
         setActiveId(null);
-        // 计算时长累计数列
-        let prevTime = 0;
-        const newTotalTime = cards.map(card => {
-            const duration = parseInt(card.data.duration);
-            return prevTime += duration;
-        })
-        setTotalTime(newTotalTime);
     };
 
     const handleDragCancel = () => {
@@ -94,7 +92,7 @@ export function VerticalTimeline({ cards }: VerticalTimelineProps) {
         >
             <SortableContext items={cards.map(card => card.id)} strategy={verticalListSortingStrategy}>
                 <ol className="relative border-s border-gray-200">
-                    {cards.map((card) => (
+                    {cards.map((card, index) => (
                         <SortableItem key={card.id} id={card.id}>
                             <li className="mb-10 ms-6" onDoubleClick={(e) => e.stopPropagation()}>
                                 <span className="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-8 ring-white">
@@ -110,7 +108,7 @@ export function VerticalTimeline({ cards }: VerticalTimelineProps) {
                                 </span>
 
                                 <time className="block mb-2 text-sm font-normal leading-none text-gray-400">
-                                    {totalTime[parseInt(card.id)]} 分钟
+                                    {totalTime[index]} 分钟
                                 </time>
 
                                 {card.description && (

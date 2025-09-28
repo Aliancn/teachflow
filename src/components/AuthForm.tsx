@@ -24,7 +24,7 @@ export function AuthForm() {
                 throw new Error('Invalid password'); 
             }
             setTimeout(() => {
-                router.push('/dashboard');
+                router.push('/home/dashboard');
             }, 100);
         } catch (error) { 
             console.error('Login failed:', error);

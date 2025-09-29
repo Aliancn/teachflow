@@ -5,7 +5,7 @@ type CardProps = {
   className?: string;
   children: React.ReactNode;
   shadow?: 'sm' | 'md' | 'lg' | 'none';
-  padding?: 'sm' | 'md' | 'lg' | 'none';
+  padding?: 'xs' | 'sm' | 'md' | 'lg' | 'none';
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
@@ -18,6 +18,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           'shadow-sm': shadow === 'sm',
           'shadow-md': shadow === 'md',
           'shadow-lg': shadow === 'lg',
+          'p-2': padding === 'xs',
           'p-4': padding === 'sm',
           'p-6': padding === 'md',
           'p-8': padding === 'lg',

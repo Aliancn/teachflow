@@ -1,18 +1,22 @@
 "use client";
+/** @jsxImportSource react */
 import { Card } from "@/components/ui/Card";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css"; // 引入 KaTeX 样式
 
 export default function ExercisePage() {
   const searchParams = useSearchParams();
   const [selectedProblem, setSelectedProblem] = useState<number | null>(null);
   const [problems, setProblems] = useState<any[]>([]);
-  const [knowledgePoints, setKnowledgePoints] = useState<string[]>([]); // 动态知识点
-  const [subjects, setSubjects] = useState<string[]>([]); // 动态学科
-  const [types, setTypes] = useState<string[]>([]); // 动态题型
-  const [difficulties, setDifficulties] = useState<string[]>([]); // 动态难度
-  const [stages, setStages] = useState<string[]>([]); // 动态阶段
+  const [knowledgePoints, setKnowledgePoints] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [difficulties, setDifficulties] = useState<string[]>([]);
+  const [stages, setStages] = useState<string[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<{
     subject: string[];
     type: string[];
@@ -28,7 +32,7 @@ export default function ExercisePage() {
   });
   const [activeFilter, setActiveFilter] = useState<keyof typeof selectedFilters | null>(null); // 当前激活的筛选类型
   const [currentPage, setCurrentPage] = useState(1); // 当前页码
-  const itemsPerPage = 7; // 每页显示的题目数量
+  const itemsPerPage = 8; // 每页显示的题目数量
 
   // 获取 JSON 数据
   useEffect(() => {
@@ -120,8 +124,23 @@ export default function ExercisePage() {
     }
   };
 
+  // 题目预览阶段
+  const getSafeMarkdownPreview = (markdown: string, length: number) => {
+    let truncated = markdown.slice(0, length);
+  
+    // 确保数学公式不会被截断
+    const dollarMatches = truncated.match(/\$/g);
+    if (dollarMatches && dollarMatches.length % 2 !== 0) {
+      // 如果 `$` 是奇数个，说明公式被截断，去掉最后一个 `$`
+      truncated = truncated.slice(0, truncated.lastIndexOf("$"));
+    }
+    return truncated + "...";
+  };
+  
+  
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">习题推荐</h1>
 
       {/* 智能推荐 */}
@@ -133,7 +152,7 @@ export default function ExercisePage() {
             placeholder="请输入提示词，让AI为您推荐习题..."
             rows={3}
           ></textarea>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
             智能习题推荐
           </button>
         </div>
@@ -142,7 +161,7 @@ export default function ExercisePage() {
       {/* 筛选标签组 */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">习题筛选</h2>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <span className="font-medium self-center">筛选条件：</span>
           {/* 筛选按钮 */}
           {[
@@ -150,11 +169,14 @@ export default function ExercisePage() {
             { label: "题型", key: "type" as keyof typeof selectedFilters, options: types },
             { label: "难度", key: "difficulty", options: difficulties },
             { label: "知识点", key: "knowledgePoint" as keyof typeof selectedFilters, options: knowledgePoints },
-            { label: "阶段", key: "stage" as keyof typeof selectedFilters, options: stages },
+            { label: "阶段", key: "stage", options: stages },
           ].map(filter => (
             <button
               key={filter.key}
-              className={`px-4 py-2 rounded ${activeFilter === filter.key ? "bg-blue-700 text-white " : "bg-gray-200"}`}
+              className={`px-4 py-2 rounded transition-all cursor-pointer ${activeFilter === filter.key
+                  ? "bg-indigo-600 text-white border border-indigo-700 shadow-md"
+                  : "bg-gray-200 hover:bg-indigo-100 hover:text-indigo-700" // 悬停效果
+                }`}
               onClick={() => setActiveFilter(activeFilter === filter.key ? null : filter.key as keyof typeof selectedFilters)}
             >
               {filter.label}
@@ -162,62 +184,128 @@ export default function ExercisePage() {
           ))}
         </div>
 
+        {/* 已选择的筛选标签 */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {Object.entries(selectedFilters).flatMap(([key, values]) =>
+            values.map(value => (
+              <span
+                key={`${key}-${value}`}
+                className="px-3 py-1 bg-gray-200 text-gray-800 rounded-full border border-gray-300 cursor-pointer hover:bg-gray-300"
+                onClick={() => updateFilter(key as keyof typeof selectedFilters, value)}
+              >
+                {value} ✕
+              </span>
+            ))
+          )}
+        </div>
+
         {/* 筛选选项 */}
         {activeFilter && (
-          <div className="mt-4 p-4 rounded bg-gray-100">
-            {[
-              { label: "学科", key: "subject", options: subjects },
-              { label: "题型", key: "type", options: types },
-              { label: "难度", key: "difficulty", options: difficulties },
-              { label: "知识点", key: "knowledgePoint", options: knowledgePoints },
-              { label: "阶段", key: "stage", options: stages },
-            ]
-              .find(filter => filter.key === activeFilter)
-              ?.options.map(option => (
-                <label key={option} className="block">
-                  <input
-                    type="checkbox"
-                    checked={activeFilter ? selectedFilters[activeFilter].includes(option) : false}
-                    onChange={() => updateFilter(activeFilter, option)}
-                  />
-                  <span className="ml-2">{option}</span>
-                </label>
-              ))}
+          <div
+            className="mt-4 p-4 rounded bg-gray-100 relative"
+            style={{ position: "relative" }}
+          >
+            {/* 关闭按钮 */}
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => setActiveFilter(null)}
+            >
+              ✕
+            </button>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+              {[
+                { label: "学科", key: "subject", options: subjects },
+                { label: "题型", key: "type", options: types },
+                { label: "难度", key: "difficulty", options: difficulties },
+                { label: "知识点", key: "knowledgePoint", options: knowledgePoints },
+                { label: "阶段", key: "stage", options: stages },
+              ]
+                .find(filter => filter.key === activeFilter)
+                ?.options.map(option => (
+                  <label key={option} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={activeFilter ? selectedFilters[activeFilter].includes(option) : false}
+                      onChange={() => updateFilter(activeFilter, option)}
+                    />
+                    <span className="ml-2">{option}</span>
+                  </label>
+                ))}
+            </div>
           </div>
         )}
       </div>
 
       {/* 题目卡片 */}
-      <div className="grid gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {paginatedProblems.map((problem, index) => (
           <Card
             key={index}
-            onClick={() => setSelectedProblem(index === selectedProblem ? null : index)}
+            onClick={(event) => {
+              // 检查点击事件的目标是否是卡片的内容区域
+              const target = event.target as HTMLElement;
+              if (target.tagName === "BUTTON" || target.tagName === "INPUT" || target.closest("button")) {
+                // 如果点击的是按钮或输入框，阻止收回逻辑
+                return;
+              }
+              if (window.getSelection()?.toString()) {
+                // 如果用户正在选择文本，阻止收回逻辑
+                return;
+              }
+              setSelectedProblem(index === selectedProblem ? null : index);
+            }}
             className="cursor-pointer"
+            padding="xs"
           >
             <div className="p-4">
-              <h3 className="font-medium">{problem.title || problem.content.slice(0, 50)}</h3>
-              <div className="flex gap-2 mt-2 text-sm text-gray-600">
+              <h3 className="font-medium text-base">{problem.title || problem.content.slice(0, 50)}</h3>
+              <div className="flex flex-wrap gap-1 mt-2 text-sm text-gray-600">
                 <span>{problem.type}</span>
                 <span>•</span>
                 <span>{problem.difficulty}</span>
                 <span>•</span>
-                <span>{problem.knowledgePoint.join(", ")}</span> {/* 显示多个知识点 */}
-                <span>•</span>
-                <span>{problem.stage}</span>
+                <span>{problem.knowledgePoint.join(", ")}</span>
               </div>
-              <div className="mt-4 text-gray-800">
+              <div className="mt-2 text-gray-800 text-base">
                 {selectedProblem === index ? (
                   <>
-                    <ReactMarkdown>{problem.content}</ReactMarkdown>
-                    <div className="mt-2 font-semibold text-blue-700">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={{
+                        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                      }}
+                    >
+                      {problem.content}
+                    </ReactMarkdown>
+                    <div className="mt-2 font-semibold text-indigo-700">
                       答案：{problem.answer}
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          console.log("举一反三功能待实现");
+                        }}
+                      >
+                        举一反三
+                      </button>
                     </div>
                   </>
                 ) : (
-                  <p className="text-gray-600">{problem.content.slice(0, 50)}...</p>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                    components={{
+                      p: ({ node, ...props }) => <p className="mb-2 inline" {...props} />, // 让 Markdown 渲染成内联
+                    }}
+                  >
+                    {getSafeMarkdownPreview(problem.content, 50)}
+                  </ReactMarkdown>
                 )}
               </div>
+
             </div>
           </Card>
         ))}

@@ -1,7 +1,10 @@
 "use client";
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeKatex from 'rehype-katex';
 import ReactMarkdown from 'react-markdown';
+import 'katex/dist/katex.min.css';
 
 interface MarkdownViewerProps {
   content: string;
@@ -12,8 +15,8 @@ export default function MarkdownViewer({ content, className }: MarkdownViewerPro
   return (
     <div className={`prose max-w-none ${className}`}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeHighlight, rehypeKatex]}
         components={{
           code({ node, className, children, ...props }) {
             return (

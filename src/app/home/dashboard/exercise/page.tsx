@@ -1,15 +1,16 @@
 "use client";
 /** @jsxImportSource react */
 import { Card } from "@/components/ui/Card";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import "katex/dist/katex.min.css"; // 引入 KaTeX 样式
+import "katex/dist/katex.min.css";
 
 export default function ExercisePage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [selectedProblem, setSelectedProblem] = useState<number | null>(null);
   const [problems, setProblems] = useState<any[]>([]);
   const [knowledgePoints, setKnowledgePoints] = useState<string[]>([]);
@@ -137,10 +138,18 @@ export default function ExercisePage() {
     return truncated + "...";
   };
   
-  
-
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto relative">
+      {/* 如果从 plan 页面跳转而来，显示返回按钮 */}
+      {searchParams.get("from") === "plan" && (
+        <button
+          className="absolute top-4 right-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          onClick={() => router.push("/home/plan")}
+        >
+          返回教学计划
+        </button>
+      )}
+
       <h1 className="text-3xl font-bold mb-6">习题推荐</h1>
 
       {/* 智能推荐 */}
@@ -175,7 +184,7 @@ export default function ExercisePage() {
               key={filter.key}
               className={`px-4 py-2 rounded transition-all cursor-pointer ${activeFilter === filter.key
                   ? "bg-indigo-600 text-white border border-indigo-700 shadow-md"
-                  : "bg-gray-200 hover:bg-indigo-100 hover:text-indigo-700" // 悬停效果
+                  : "bg-gray-200 hover:bg-indigo-100 hover:text-indigo-700"
                 }`}
               onClick={() => setActiveFilter(activeFilter === filter.key ? null : filter.key as keyof typeof selectedFilters)}
             >
@@ -281,7 +290,33 @@ export default function ExercisePage() {
                     <div className="mt-2 font-semibold text-indigo-700">
                       答案：{problem.answer}
                     </div>
-                    <div className="mt-4 flex justify-end">
+                    <div className="mt-4 flex justify-end gap-2">
+                      {searchParams.get("from") === "plan" && (
+                        <button
+                          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                          onClick={(event) => {
+                            event.stopPropagation();
+
+                            // 获取当前题目信息
+                            const currentProblem = problem;
+
+                            // 从 localStorage 中获取已有的相关练习
+                            const storedExercises = localStorage.getItem("relatedExercises");
+                            const exercises = storedExercises ? JSON.parse(storedExercises) : [];
+
+                            // 添加当前题目到相关练习
+                            exercises.push(currentProblem);
+
+                            // 更新 localStorage
+                            localStorage.setItem("relatedExercises", JSON.stringify(exercises));
+
+                            // 提示用户
+                            alert("已添加至教学计划！");
+                          }}
+                        >
+                          添加至教学计划
+                        </button>
+                      )}
                       <button
                         className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
                         onClick={(event) => {

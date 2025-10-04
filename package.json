@@ -24,6 +24,7 @@
     "highlight.js": "^11.11.1",
     "immer": "^10.1.1",
     "katex": "^0.16.21",
+    "lucide-react": "^0.487.0",
     "next": "15.2.3",
     "pptxgenjs": "^3.12.0",
     "react": "^19.0.0",

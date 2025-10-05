@@ -3,7 +3,7 @@ import { produce } from 'immer';
 
 type Resource = {
     id: string;
-    type: 'document' | 'video' | 'image' | 'book';
+    type: 'document' | 'video' | 'image' | 'audio' ;
     title: string;
     url: string[];
     description: string[];

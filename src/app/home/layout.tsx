@@ -100,7 +100,7 @@ export default function DashboardLayout({
 
       {showHistory && <HistoryPanel items={historyItems} />}
 
-      <main className="bg-white overflow-y-auto h-full">
+      <main className="bg-white overflow-y-auto h-screen">
         {children}
       </main>
     </div>

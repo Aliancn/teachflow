@@ -62,6 +62,7 @@ export default function ExercisePage() {
           answer: problem["答案"],
         }));
         setProblems(formattedProblems);
+        console.log(formattedProblems);
 
         // 动态提取属性值
         const uniqueSubjects = Array.from(new Set(combinedData.map((problem: any) => problem["学科"])));

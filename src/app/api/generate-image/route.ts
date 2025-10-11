@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const { prompt } = await request.json()
-
+  const apiKey = 'Bearer ' + process.env.KOLORS_API_KEY;
+  console.log(apiKey)
   const options = {
     method: 'POST',
     headers: {
-      Authorization: `Bearer sk-djhnnzfnejjtvvjhxzlwiykpazvktywtvlaczopogajttsnk`,
+      Authorization: apiKey,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({

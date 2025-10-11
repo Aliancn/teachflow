@@ -2,9 +2,19 @@
 import { VerticalTimeline } from '@/components/VerticalTimeline';
 import { useSyllabusStore } from '@/lib/stores/syllabusStore';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function SyllabusResult() {
-  const { generatedCards } = useSyllabusStore();
+  const { generatedCards , loadMockWord} = useSyllabusStore();
+  const router = useRouter();
+  const onSubmit = async () => {
+    try {
+      await loadMockWord();
+      router.push('/home/dashboard/syllabus/word');
+    } catch (error) {
+      console.error('生成失败:', error);
+    }
+  };
   return (
     <div className="p-8 bg-white">
       <div className="grid max-w-5xl mx-auto">
@@ -30,6 +40,13 @@ export default function SyllabusResult() {
               暂无生成内容，请返回重新生成
             </div>
           )}
+        </div>
+        <div className='flex justify-center items-center w-full py-3'>
+          <button 
+          className="w-5/10 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          onClick={onSubmit}>
+            加载教学大纲
+          </button>
         </div>
       </div>
     </div>

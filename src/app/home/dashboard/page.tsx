@@ -7,7 +7,7 @@ export default function DashboardPage() {
   const { features } = useDashboardStore();
 
   return (
-    <div className="min-h-screen px-4 pt-24">
+    <div className="min-h-screen px-4 pt-12">
       <div className="mx-auto max-w-6xl">
         <h1 className="mb-12 text-3xl font-bold text-slate-800">教学功能中心</h1>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">

@@ -12,7 +12,7 @@ interface Message {
 
 interface ChatState {
   messages: Message[];
-  started : boolean;
+  started: boolean;
   sendMessage: (message: Message) => void;
   clearMessages: () => void;
   appendAIMessageChunk: (id: number, chunk: string, isThinking : boolean) => void;

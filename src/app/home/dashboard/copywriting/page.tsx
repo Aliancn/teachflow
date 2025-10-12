@@ -1,24 +1,22 @@
 "use client";
 import MessageBubble from '@/components/AI/MessageBubble';
-import { useChatStore} from '@/lib/stores/chatStore';
-import { useConversationStore } from '@/lib/stores/conversationStore';
+import { useChatStore} from '@/lib/stores/copywritingStore';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useState, useRef, useEffect } from 'react';
 import { fetchDifyStreamResultW,fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
 import { getTimestamp } from '@/lib/utils/time';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
-  const { messages, sendMessage, appendAIMessageChunk } = useChatStore();
+  const { messages, started,sendMessage, appendAIMessageChunk } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationId, setConversationId] = useState<number>(-1);
   const [loading, setLoading] = useState<boolean>(false);
-  const { conversations, addConversation, deleteConversation, updateConversation } = useConversationStore();
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   useEffect(() => {
     // 新增开场提示
-    if (messages.length === 0) {
+    if (messages.length === 0 && !started) {
       const welcomeMsg = {
         id: Date.now(),
         content: `👋 欢迎使用 **文案生成**！\n\n请随时告诉我你想编写的文案内容～\n\n✨🚀`,
@@ -36,13 +34,6 @@ export default function ChatPage() {
   const handleSend = async () => {
     if (conversationId == -1) {
       setConversationId(Date.now());
-      addConversation({
-        id: conversationId,
-        title: '智能助手' + Math.floor(Math.random() * 100),
-        type: 'agent',
-        conversationId: conversationId,
-        timestamp: getTimestamp(),
-      })
     }
 
     if (inputMessage.trim()) {

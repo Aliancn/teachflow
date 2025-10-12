@@ -16,6 +16,22 @@ export default function ChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+  useEffect(() => {
+    // 新增开场提示
+    if (messages.length === 0) {
+      const welcomeMsg = {
+        id: Date.now(),
+        content: `👋 欢迎使用 **文案生成**！\n\n请随时告诉我你想编写的文案内容～\n\n✨🚀`,
+        isUser: false,
+        timestamp: getTimestamp(),
+        thinkContent: '',
+        conversationId: -1
+      };
+      sendMessage(welcomeMsg);
+    }
+
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);  // 空数组表示只在组件挂载时执行一次
 
   const handleSend = async () => {
     if (conversationId == -1) {

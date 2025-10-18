@@ -30,6 +30,7 @@ export default function SyllabusGeneration() {
       // const response = await fetchDifyCard(req);
       const response = await loadMock();
       // TODO response.conversation_id
+      console.log('response', response);
       // setGeneratedCards(response.result.cards);
     } catch (error) {
       console.error('生成失败:', error);

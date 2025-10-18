@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils/class'
-import { VariantProps, cva } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 
 export type ButtonProps = {
   variant?: 'default' | 'secondary' | 'outline' | 'ghost'

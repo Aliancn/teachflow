@@ -62,6 +62,7 @@ export const usePlanStore = create<PlanState>((set) => ({
     addPlan: (plan: Plan) => set((state: PlanState) => ({ plans: [...state.plans, plan] })),
     updatePlan: (updatedPlan: Plan) => set(produce((state) => {
         const index = state.plans.findIndex((p: Plan) => p.id === updatedPlan.id);
+        console.log(index)
     })),
     loadMockData: async() => {
         const mockData =  (await import('@/types/content.mock.json'))

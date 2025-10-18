@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { produce } from 'immer';
 
 interface Conversation {
     id: number;  // 全局id主键

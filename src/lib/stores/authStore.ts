@@ -44,11 +44,11 @@ export const useAuthStore = create<AuthState>((set) => ({
             // if (!response.ok) throw new Error('登录失败');
 
             // const data = await response.json();
-
+            console.log('login', email, password)
             const data = {
                 user: {
                     id: '1',
-                    email: 'admin@example.com',       
+                    email: email,       
                     name: 'Admin',
                     role: 'admin'
                 },
@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                 isLoading: false,
             });
         } catch (error) {
-            set({ error: '登录失败，请检查凭证', isLoading: false });
+            set({ error: '登录失败，请检查凭证'+ error, isLoading: false });
         }
     },
     logout: () => {

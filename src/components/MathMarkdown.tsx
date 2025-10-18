@@ -41,17 +41,6 @@ export default function MathMarkdown({ content, className }: { content: string, 
                     output: 'mathml',  
                     strict: false
                 }]]}
-                components={{
-                    p: ({ node, ...props }) => <p className="mb-4 leading-relaxed" {...props} />, // 增加段落间距
-                    h1: ({ node, ...props }) => <h1 className="mb-6 border-b-2 border-gray-200 pb-2" {...props} />,
-                    h2: ({ node, ...props }) => <h2 className="mb-4 text-purple-700 mt-8" {...props} />,
-                    ul: ({ node, ...props }) => <ul className="pl-8 space-y-2 marker:text-purple-400" {...props} />,
-                    ol: ({ node, ...props }) => <ol className="pl-8 space-y-2" {...props} />,
-                    table: ({ node, ...props }) => <table className="w-full border-collapse" {...props} />,
-                    th: ({ node, ...props }) => <th className="bg-purple-50 p-2 text-left border-b-2 border-purple-200" {...props} />,
-                    td: ({ node, ...props }) => <td className="p-2 border-b border-gray-100" {...props} />,
-                    a: ({ node, ...props }) => <a className="text-purple-600 hover:text-purple-800 underline" {...props} />
-                }}
             >
                 {convertToLatexMarkdown(content)}
                 {/* {content} */}

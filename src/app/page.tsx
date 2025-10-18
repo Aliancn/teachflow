@@ -26,7 +26,7 @@ export default function Home() {
         {/* 用户信息 */}
         <div className="flex items-center gap-3">
           <Image
-            src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff"
+            src={`https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff&ts=${Date.now()}`}
             alt="User Avatar"
             width={36}
             height={36}

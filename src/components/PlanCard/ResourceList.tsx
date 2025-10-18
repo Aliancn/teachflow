@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Plus, FileText, Video, Image, Book, Download } from 'lucide-react';
 import Link from 'next/link';
-import { v4 as uuidv4 } from 'uuid';
 import { RecommendedResources } from './RecommendedResources';
 import type { Resource } from '@/lib/stores/resourceStore';
 import { useResourceStore } from '@/lib/stores/resourceStore';
@@ -14,7 +13,7 @@ const resourceTypes = [
 ];
 
 export function ResourceList() {
-    const { resources, addResource, deleteResource, loadMockData } = useResourceStore();
+    const { resources,  loadMockData } = useResourceStore();
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -38,6 +37,7 @@ export function ResourceList() {
         //     title: `${resourceTypes.find(t => t.type === type)?.label} ${resources.filter(r => r.type === type).length + 1}`
         // };
         // addResource(newResource);
+        console.log('addRes', type);
         loadMockData();
         setShowDropdown(false);
     };

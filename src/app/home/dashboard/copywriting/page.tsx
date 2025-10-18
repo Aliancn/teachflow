@@ -3,7 +3,7 @@ import MessageBubble from '@/components/AI/MessageBubble';
 import { useChatStore} from '@/lib/stores/copywritingStore';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useState, useRef, useEffect } from 'react';
-import { fetchDifyStreamResultW,fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
+import { fetchDifyStreamResultAgent } from '@/lib/agents/dify_chat';
 import { getTimestamp } from '@/lib/utils/time';
 export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState('');
@@ -71,7 +71,7 @@ export default function ChatPage() {
           content: msg.content
         })), '');
 
-        for await (let chunk of generator) {
+        for await (const chunk of generator) {
           if (chunk.thinking) {
             appendAIMessageChunk(aiMsgId, chunk.word, true);
           }

@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['39.106.73.168:18080', 'localhost:3000'],
+    },
+  },
   webpack: (config) => {
     config.resolve.alias.canvas = false;
     return config;

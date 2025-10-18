@@ -39,7 +39,7 @@ export default function DashboardApp() {
 
   const onSyllabusSubmit = () => {
     setStep('showResult');
-    router.push('home/plan');
+    router.push('/home/plan');
   }
 
   return (

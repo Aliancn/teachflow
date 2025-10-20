@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
     try {
       const { prompt } = await request.json()
-      const apiKey = 'Bearer ' + process.env.VIDEO_API_KEY
+      const apiKey = 'Bearer ' + process.env.NEXT_PUBLIC_SILICONFLOW_TOKEN
   
       const options = {
         method: 'POST',

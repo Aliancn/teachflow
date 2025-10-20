@@ -9,7 +9,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: '缺少 taskId 参数' }, { status: 400 })
     }
 
-    const apiKey = 'Bearer ' + process.env.VIDEO_API_KEY
+    const apiKey = 'Bearer ' + process.env.NEXT_PUBLIC_SILICONFLOW_TOKEN
     const response = await fetch(`https://api.siliconflow.cn/v1/video/query?requestId=${requestId}`, {
       headers: {
         Authorization: apiKey

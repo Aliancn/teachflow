@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const { prompt } = await request.json()
-  const apiKey = 'Bearer ' + process.env.KOLORS_API_KEY;
+  const apiKey = 'Bearer ' + process.env.NEXT_PUBLIC_SILICONFLOW_TOKEN;
   console.log(apiKey)
   const options = {
     method: 'POST',

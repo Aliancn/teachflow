@@ -20,7 +20,7 @@ export function AuthForm() {
         try {
             login(data.email, data.password);
             console.log('Login successful');
-            if ( data.email != 'admin@admin.com'|| data.password != 'ds3j2#$#321') {
+            if ( data.email != 'admin@admin.com'|| data.password != '123123') {
                 throw new Error('Invalid email or password'); 
             }
             // setTimeout(() => {

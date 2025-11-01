@@ -3,7 +3,7 @@ import { useSyllabusStore, CardData } from '@/lib/stores/syllabusStore';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
- 
+import MathMarkdown from './MathMarkdown';
 
 const TypeBadge = ({ type }: { type: CardData['type'] }) => (
     <div className={`absolute -top-3 right-4 px-3 py-1 rounded-full text-sm
@@ -84,9 +84,8 @@ export const Card = ({ card }: { card: CardData }) => {
                     <p className="text-sm text-gray-500 mb-6">{editedDesc}</p>
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-100">
                         {editedContent.map((text, index) => (
-                            <ReactMarkdown key={index} remarkPlugins={[remarkGfm]}>
-                                {text}
-                            </ReactMarkdown>
+                            <MathMarkdown key={index} content={text}>
+                            </MathMarkdown>
                         ))}
                     </div>
                     <div className="mt-4 pt-3 text-sm text-gray-600 border-t border-gray-100 text-right">

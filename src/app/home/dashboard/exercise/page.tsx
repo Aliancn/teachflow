@@ -173,6 +173,10 @@ function ExerciseContent() {
     return truncated + "...";
   };
 
+  const handleProblemClick = () => {
+    
+  }
+
   return (
     <div className="p-6 max-w-6xl mx-auto relative">
       {/* 如果从 plan 页面跳转而来，显示返回按钮 */}
@@ -196,7 +200,7 @@ function ExerciseContent() {
             placeholder="请输入提示词，让AI为您推荐习题..."
             rows={3}
           ></textarea>
-          <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+          <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" onClick={handleProblemClick}>
             智能习题推荐
           </button>
         </div>

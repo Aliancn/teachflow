@@ -16,12 +16,13 @@ export default function ChatPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const {  addConversation} = useConversationStore();
   const [welcomeMsgID, setWelcomeMsgID] = useState<number>(0);
+  const welcomeMessageSentRef = useRef(false);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   useEffect(() => {
     // 新增开场提示
-    if (messages.length === 0 && !started) {
+    if (messages.length === 0 && !started && !welcomeMessageSentRef.current) {
       let now = Date.now();
       setWelcomeMsgID(now);
       console.log('welcomeMsgID', welcomeMsgID);
@@ -34,8 +35,9 @@ export default function ChatPage() {
         conversationId: -1
       };
       sendMessage(welcomeMsg);
+      welcomeMessageSentRef.current = true;
     }
-  }, []);  // 空数组表示只在组件挂载时执行一次
+  }, [messages.length, started]);
 
   const handleSend = async () => {
     if (conversationId == 0) {

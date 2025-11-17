@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import MathMarkdown from '@/components/MathMarkdown';
+import { generateEnhancedExercise } from '@/lib/agents/card_build';
 
 export default function ExerciseEnhancePage() {
   const [inputText, setInputText] = useState('');
@@ -15,23 +16,17 @@ export default function ExerciseEnhancePage() {
 
     setIsLoading(true);
     setError('');
-    
+
     try {
-      // 模拟API调用，实际应替换为真实API
-      const response = await fetch('/api/enhance-exercise', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ original: inputText })
+      // 调用实际的API生成增强习题
+      const result = await generateEnhancedExercise({
+        original: inputText
       });
 
-      if (!response.ok) throw new Error('生成失败');
-      
-      const data = await response.json();
-      setGeneratedExercises(data.results);
+      setGeneratedExercises(result.results);
     } catch (err) {
-      setError('生成失败，请稍后重试');
+      console.error('生成增强习题失败:', err);
+      setError(err instanceof Error ? err.message : '生成失败，请稍后重试');
     } finally {
       setIsLoading(false);
     }

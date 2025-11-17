@@ -4,47 +4,96 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { useEffect, useState } from 'react';
 
 type FormValues = {
-    email: string;
+    username: string;
     password: string;
+    email?: string;
 };
 
 export function AuthForm() {
     const { register, handleSubmit } = useForm<FormValues>();
     const router = useRouter();
-    const {login} = useAuthStore();
+    const { login, register: registerUser } = useAuthStore();
+    const [isRegistering, setIsRegistering] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' | 'info' } | null>(null);
 
-    const onSubmit = (data: FormValues) => {
+    useEffect(() => {
+        if (!feedback) return;
+        const timer = setTimeout(() => setFeedback(null), 4000);
+        return () => clearTimeout(timer);
+    }, [feedback]);
+
+    const onSubmit = async (data: FormValues) => {
         console.log('Form data:', data);
+        setIsSubmitting(true);
+        setFeedback(null);
         try {
-            login(data.email, data.password);
-            console.log('Login successful');
-            if ( data.email != 'admin@admin.com'|| data.password != '123123') {
-                throw new Error('Invalid email or password'); 
+            if (isRegistering) {
+                if (!data.email) {
+                    setFeedback({ message: '请输入邮箱', tone: 'error' });
+                    setIsSubmitting(false);
+                    return;
+                }
+                await registerUser(data.username, data.password, data.email);
+                setFeedback({ message: '注册成功! 请登录。', tone: 'success' });
+                setIsRegistering(false);
+            } else {
+                await login(data.username, data.password);
+                setFeedback({ message: '登录成功，正在跳转...', tone: 'success' });
+                router.push('/home');
             }
-            // setTimeout(() => {
-            //     router.push('/home');
-            //     console.log("login jump")
-            // }, 100);
-            router.push('/home');
-        } catch (error) { 
-            console.error('Login failed:', error);
-        }  
+        } catch (error) {
+            console.error(`${isRegistering ? 'Registration' : 'Login'} failed:`, error);
+            setFeedback({ message: `${isRegistering ? '注册' : '登录'}失败，请稍后再试`, tone: 'error' });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {feedback && (
+                <div
+                    className={`flex items-start gap-2 rounded-lg border p-3 text-sm shadow-sm transition-all ${
+                        feedback.tone === 'success'
+                            ? 'border-green-200 bg-green-50 text-green-700'
+                            : feedback.tone === 'error'
+                                ? 'border-red-200 bg-red-50 text-red-700'
+                                : 'border-blue-200 bg-blue-50 text-blue-700'
+                    }`}
+                >
+                    <span className="font-semibold">
+                        {feedback.tone === 'success' && '✓'}
+                        {feedback.tone === 'error' && '!'}
+                        {feedback.tone === 'info' && 'i'}
+                    </span>
+                    <p>{feedback.message}</p>
+                </div>
+            )}
             <div className="space-y-4">
                 <div>
-                    <Label htmlFor="email">电子邮箱</Label>
+                    <Label htmlFor="username">用户名</Label>
                     <Input
-                        id="email"
-                        type="email"
-                        placeholder="请输入邮箱"
-                        {...register('email', { required: true })}
+                        id="username"
+                        type="text"
+                        placeholder="请输入用户名"
+                        {...register('username', { required: true })}
                     />
                 </div>
+                {isRegistering && (
+                    <div>
+                        <Label htmlFor="email">邮箱</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="请输入邮箱"
+                            {...register('email')}
+                        />
+                    </div>
+                )}
                 <div>
                     <Label htmlFor="password">密码</Label>
                     <Input
@@ -55,9 +104,25 @@ export function AuthForm() {
                     />
                 </div>
             </div>
-            <button type="submit" className="w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                登录
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ${
+                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+            >
+                {isSubmitting ? '处理中...' : isRegistering ? '注册' : '登录'}
             </button>
+
+            <div className="text-center">
+                <button
+                    type="button"
+                    onClick={() => setIsRegistering(!isRegistering)}
+                    className="text-sm text-blue-500 hover:underline"
+                >
+                    {isRegistering ? '已有账户? 前往登录' : '没有账户? 前往注册'}
+                </button>
+            </div>
 
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">

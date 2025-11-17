@@ -1,126 +1,99 @@
 import { create } from 'zustand';
+import { login, register, getUserProfile } from '../api/user';
+
+type User = {
+    id: number;
+    email: string;
+    name: string;
+};
 
 type AuthState = {
-    user: null | {
-        id: string;
-        email: string;
-        name: string;
-        role: 'user' | 'admin';
-    };
+    user: User | null;
     token: string | null;
     refreshToken: string | null;
     isLoading: boolean;
     error: string | null;
-    login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string, name: string) => Promise<void>;
+    fetchUserProfile: () => Promise<void>;
+    login: (username: string, password: string) => Promise<void>;
+    register: (username: string, password: string, email: string) => Promise<void>;
     logout: () => void;
-    refreshAuth: () => Promise<void>;
-    initializeFromStorage: () => void;
+    initialize: () => Promise<void>;
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     token: null,
     refreshToken: null,
     isLoading: false,
     error: null,
-    initializeFromStorage: () => {
-        const storedUser = localStorage.getItem('auth_user');
-        const storedToken = localStorage.getItem('auth_token');
-        if (storedUser && storedToken) {
-            set({ user: JSON.parse(storedUser), token: storedToken });
+
+    fetchUserProfile: async () => {
+        try {
+            const response = await getUserProfile();
+            const userData = response.data.data;
+            set((state) => ({ user: { ...state.user, name: userData.username, email: userData.email } as User }));
+        } catch (error) {
+            console.error("Failed to fetch user profile", error);
+            // If fetching profile fails, token might be invalid, so log out
+            get().logout();
+            set({ error: '会话已过期，请重新登录。' });
         }
     },
-    login: async (email, password) => {
+
+    initialize: async () => {
+        const storedToken = localStorage.getItem('access_token');
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        const storedId = localStorage.getItem('user_id');
+        if (storedToken && storedId) {
+            set({ token: storedToken, refreshToken: storedRefreshToken, user: { id: parseInt(storedId, 10) } as User });
+            await get().fetchUserProfile();
+        }
+    },
+
+    register: async (username, password, email) => {
         set({ isLoading: true, error: null });
         try {
-            // TODO: 替换为实际API调用
-            // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ email, password })
-            // });
+            await register({ username, password, email });
+            set({ isLoading: false });
+        } catch (error) {
+            set({ error: '注册失败: ' + error, isLoading: false });
+            throw error;
+        }
+    },
 
-            // if (!response.ok) throw new Error('登录失败');
-
-            // const data = await response.json();
-            console.log('login', email, password)
-            const data = {
-                user: {
-                    id: '1',
-                    email: email,       
-                    name: 'Admin',
-                    role: 'admin'
-                },
-                token: 'mock_token',
-                refreshToken: 'mock_refresh_token'
-            }
-            localStorage.setItem('auth_user', JSON.stringify(data.user));
-            localStorage.setItem('auth_token', data.token);
+    login: async (username, password) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await login({ username, password });
+            const data = response.data.data;
+            
+            localStorage.setItem('access_token', data.accessToken);
             localStorage.setItem('refresh_token', data.refreshToken);
+            localStorage.setItem('user_id', data.id.toString());
             document.cookie = `isAuthenticated=true; path=/; expires=${new Date(Date.now() + 3600 * 1000).toUTCString()}`;
+            
             set({
-                user: { ...data.user, role: data.user.role === 'admin' ? 'admin' : 'user' },
-                token: data.token,
+                token: data.accessToken,
                 refreshToken: data.refreshToken,
-                isLoading: false,
+                user: { id: data.id } as User,
             });
+
+            // Fetch user profile after setting the token
+            await get().fetchUserProfile();
+
         } catch (error) {
             set({ error: '登录失败，请检查凭证'+ error, isLoading: false });
+            throw error;
+        } finally {
+            set({ isLoading: false });
         }
     },
+
     logout: () => {
-        localStorage.removeItem('auth_user');
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_id');
         document.cookie = 'isAuthenticated=false; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        set({ user: null, token: null, refreshToken: null});
-    },
-    register: async (email, password, name) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, name })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || '注册失败');
-            }
-
-            const data = await response.json();
-            localStorage.setItem('auth_user', JSON.stringify(data.user));
-            localStorage.setItem('auth_token', data.token);
-            set({
-                user: { ...data.user, role: 'user' },
-                token: data.token,
-                isLoading: false
-            });
-        } catch (error) {
-            set({ error: error instanceof Error ? error.message : '注册失败', isLoading: false });
-        }
-    },
-    refreshAuth: async () => {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Token刷新失败');
-
-            const data = await response.json();
-            localStorage.setItem('auth_token', data.token);
-            set({ token: data.token });
-        } catch (error) {
-            localStorage.removeItem('auth_user');
-            localStorage.removeItem('auth_token');
-            set({ user: null, token: null });
-        }
+        set({ user: null, token: null, refreshToken: null, error: null });
     }
 }));

@@ -1,444 +1,529 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/Card";
-import { FaRuler, FaCompass, FaFont, FaDna } from "react-icons/fa";
-import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai"; // 引入图标
+
+import React, { useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 import {
+  ResponsiveContainer,
   LineChart,
   Line,
+  CartesianGrid,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts"; // 引入 Recharts
+  Legend,
+} from "recharts";
+import { UploadModal } from "@/components/UploadModal";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card_Upload";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/lib/stores/authStore";
+import { getStudentsByTeacherId, StudentResponse } from "@/lib/api/student";
+import { Exam, getAllExams } from "@/lib/api/exam";
+import { getScoresByStudent, getScoresByExam, Score } from "@/lib/api/score";
 
-interface Chapter {
-  name: string;
-  completed: boolean;
-  level: number;
-}
+type UploadType = "student" | "exam" | "score";
 
-interface StudyRecord {
-  date: string;
-  count: number;
-}
-
-interface ExamScore {
-  date: string;
+interface TrendPoint {
+  label: string;
   score: number;
+  date: string;
 }
 
-interface ErrorRate {
-  topic: string;
-  errorRate: number;
+interface AveragePoint extends TrendPoint {
+  examSubject: string;
 }
 
-interface QuestionTypeErrorRate {
-  type: string;
-  errorRate: number;
-}
+const MAX_POINTS = 6;
 
-interface Student {
-  name: string;
-  avatar: string;
-  chapters: Chapter[];
-  studyRecords: StudyRecord[];
-  examScores: ExamScore[];
-  errorRates: ErrorRate[];
-  questionTypeErrorRates: QuestionTypeErrorRate[];
-}
+export default function AnalysisPage() {
+  const { user } = useAuthStore();
 
-interface Course {
-  name: string;
-  icon: string;
-  content: string;
-  students: Student[];
-}
+  const [isUploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadType, setUploadType] = useState<UploadType>("student");
 
-export default function CourseSelectionPage() {
-  const [courseData, setCourseData] = useState<Course[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [selectedStudentIndex, setSelectedStudentIndex] = useState<number>(0);
-  const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false);
-  const [showOverallAnalysis, setShowOverallAnalysis] = useState<boolean>(false);
+  const [students, setStudents] = useState<StudentResponse[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [studentsError, setStudentsError] = useState("");
 
-  // 加载 JSON 数据
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [examLoading, setExamLoading] = useState(false);
+
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [studentScores, setStudentScores] = useState<Score[]>([]);
+  const [studentTrendLoading, setStudentTrendLoading] = useState(false);
+  const [studentTrendError, setStudentTrendError] = useState("");
+  const [studentTrendFetched, setStudentTrendFetched] = useState(false);
+
+  const [averageTrendData, setAverageTrendData] = useState<AveragePoint[]>([]);
+  const [averageLoading, setAverageLoading] = useState(false);
+  const [averageError, setAverageError] = useState("");
+  const [averageSubject, setAverageSubject] = useState<string>("");
+  const [averageTrendFetched, setAverageTrendFetched] = useState(false);
+
+  const examMap = useMemo(() => {
+    return new Map(exams.map((exam) => [exam.examId, exam]));
+  }, [exams]);
+
+  const subjectOptions = useMemo(() => {
+    const subjects = new Set<string>();
+    exams.forEach((exam) => subjects.add(exam.examSubject));
+    return Array.from(subjects);
+  }, [exams]);
+
+  const resolvedStudentId = useMemo(() => {
+    return parseNumericId(selectedStudentId);
+  }, [selectedStudentId]);
+
   useEffect(() => {
-    fetch("/courseData.json")
-      .then((response) => response.json())
-      .then((data) => setCourseData(data))
-      .catch((error) => console.error("加载课程数据失败:", error));
+    if (!user?.id) return;
+    setStudentsLoading(true);
+    setStudentsError("");
+    (async () => {
+      try {
+        const response = await getStudentsByTeacherId(user.id);
+        if (response.data.code === "200") {
+          setStudents(response.data.data || []);
+        } else {
+          setStudentsError("获取学生列表失败");
+        }
+      } catch (error) {
+        console.error("获取学生列表失败", error);
+        setStudentsError("获取学生列表失败");
+      } finally {
+        setStudentsLoading(false);
+      }
+    })();
+  }, [user?.id]);
+
+  useEffect(() => {
+    setExamLoading(true);
+    (async () => {
+      try {
+        const response = await getAllExams();
+        if (response.data.code === "200") {
+          setExams(response.data.data || []);
+        }
+      } catch (error) {
+        console.error("获取考试列表失败", error);
+      } finally {
+        setExamLoading(false);
+      }
+    })();
   }, []);
 
-  const selectedCourseData = courseData.find(
-    (course) => course.name === selectedCourse
-  );
+  useEffect(() => {
+    setStudentScores([]);
+    setStudentTrendError("");
+    setStudentTrendFetched(false);
+  }, [selectedStudentId, selectedSubject]);
 
-  const selectedStudent =
-    selectedCourseData?.students && selectedCourseData.students[selectedStudentIndex];
+  useEffect(() => {
+    if (selectedSubject && !subjectOptions.includes(selectedSubject)) {
+      setSelectedSubject("");
+    }
+  }, [subjectOptions, selectedSubject]);
+
+  const studentTrendData: TrendPoint[] = useMemo(() => {
+    if (!selectedSubject) return [];
+    const filtered = studentScores
+      .map((score) => {
+        return {
+          label: `${score.examName}`,
+          score: Number(score.scoreValue.toFixed(2)),
+          date: score.examDate,
+        } as TrendPoint;
+      })
+      .filter(Boolean) as TrendPoint[];
+
+    return filtered
+      .sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      )
+      .slice(-MAX_POINTS);
+  }, [studentScores, examMap, selectedSubject]);
+
+  useEffect(() => {
+    if (!exams.length) {
+      setSelectedSubject("");
+      setAverageSubject("");
+    }
+  }, [exams]);
+
+  useEffect(() => {
+    if (averageSubject && !subjectOptions.includes(averageSubject)) {
+      setAverageSubject("");
+    }
+  }, [averageSubject, subjectOptions]);
+
+  useEffect(() => {
+    setAverageTrendData([]);
+    setAverageError("");
+    setAverageTrendFetched(false);
+  }, [averageSubject]);
+
+  useEffect(() => {
+    if (!resolvedStudentId || !selectedSubject) return;
+
+    let cancelled = false;
+    const fetchStudentTrend = async () => {
+      setStudentTrendLoading(true);
+      setStudentTrendError("");
+      try {
+        const response = await getScoresByStudent(resolvedStudentId);
+        if (cancelled) return;
+        if (response.data.code === "200") {
+          setStudentScores(response.data.data
+            .filter((score) => score.examSubject === selectedSubject)
+            .map((score) => ({
+            ...score,
+            scoreValue: Number(score.scoreValue.toFixed(2))
+          })) || []);
+          setStudentTrendFetched(true);
+        } else {
+          setStudentTrendError("获取成绩失败");
+          setStudentTrendFetched(false);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("获取学生成绩失败", error);
+          setStudentTrendError("获取成绩失败");
+          setStudentTrendFetched(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setStudentTrendLoading(false);
+        }
+      }
+    };
+
+    fetchStudentTrend();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedStudentId, selectedSubject]);
+
+  useEffect(() => {
+    if (!averageSubject || examLoading) return;
+
+    let cancelled = false;
+    const fetchAverageTrend = async () => {
+      const subjectExams = exams
+        .filter((exam) => exam.examSubject === averageSubject)
+        .sort(
+          (a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime()
+        )
+        .slice(-MAX_POINTS);
+      if (!subjectExams.length) {
+        if (!cancelled) {
+          setAverageTrendData([]);
+          setAverageError("该科目暂无考试数据");
+          setAverageTrendFetched(false);
+        }
+        return;
+      }
+
+      setAverageLoading(true);
+      setAverageError("");
+      try {
+        const responses = await Promise.all(
+          subjectExams.map((exam) => getScoresByExam(exam.examId))
+        );
+        if (cancelled) return;
+        const dataset: AveragePoint[] = subjectExams.map((exam, index) => {
+          const body = responses[index].data;
+          const scores: Score[] = body.code === "200" ? body.data || [] : [];
+          const averageScore = scores.length
+            ? Number(
+                (
+                  scores.reduce((sum, item) => sum + item.scoreValue, 0) /
+                  scores.length
+                ).toFixed(2)
+              )
+            : 0;
+          return {
+            label: exam.examName,
+            score: averageScore,
+            date: exam.examDate,
+            examSubject: exam.examSubject,
+          };
+        });
+        setAverageTrendData(dataset);
+        setAverageTrendFetched(true);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("获取平均分失败", error);
+          setAverageError("获取平均成绩失败");
+          setAverageTrendFetched(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setAverageLoading(false);
+        }
+      }
+    };
+
+    fetchAverageTrend();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [averageSubject, exams, examLoading]);
+
+  const handleOpenUploadModal = (type: UploadType) => {
+    setUploadType(type);
+    setUploadModalOpen(true);
+  };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* 科目选择界面 */}
-      {!selectedCourse && (
-        <>
-          <h1 className="text-3xl font-bold mb-8">科目选择</h1>
-          <div className="grid grid-cols-3 gap-6 mt-25">
-            {courseData.map((course, index) => (
-              <Card
-                key={index}
-                className="cursor-pointer hover:shadow-lg transition flex flex-col items-center justify-between p-6 h-48 w-48 mx-auto"
-                onClick={() => setSelectedCourse(course.name)}
-              >
-                <div className="flex-grow flex items-center justify-center">
-                  {course.icon === "FaRuler,FaCompass" && (
-                    <>
-                      <FaRuler className="text-4xl text-blue-500" />
-                      <FaCompass className="text-4xl text-blue-500" />
-                    </>
-                  )}
-                  {course.icon === "FaFont" && (
-                    <FaFont className="text-4xl text-green-500" />
-                  )}{course.icon === "FaDna" && (
-                    <FaDna className="text-4xl text-purple-500" />
-                  )}
-                </div>
-                <h2 className="text-lg font-bold text-center mt-4">{course.name}</h2>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
+    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6">
+      <header className="space-y-2">
+        <p className="text-sm font-medium text-blue-600">教学洞察仪表盘</p>
+        <h1 className="text-3xl font-semibold text-gray-900">学情分析</h1>
+        <p className="text-sm text-gray-500">
+          聚焦学生个体与群体表现，快速定位薄弱环节，辅助教学策略调整。
+        </p>
+      </header>
 
-      {/* 如果选择了课程，显示对应的学情分析内容 */}
-      {selectedCourse && selectedCourseData && (
-        <div className="mt-8 p-6  rounded-lg shadow-md space-y-6">
-          {/* 添加标题 */}
-          <h1 className="text-3xl font-bold mb-4">
-            {selectedCourse}学情分析
-          </h1>
-
-          <div className="relative mb-4">
-            {/* “个人学情”按钮 */}
-            <button
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              onClick={() => {
-                setDropdownVisible(!isDropdownVisible);
-                setShowOverallAnalysis(false);
-              }
-              } // 点击切换列表的显示状态
-            >
-              个人学情
-            </button>
-
-            {/* 学生下拉列表 */}
-            {isDropdownVisible && selectedCourseData.students?.length > 1 && (
-              <div className="absolute left=0 mt-2 w-40 bg-white border rounded shadow-md">
-                {selectedCourseData?.students.map((student, index) => (
-                  <div
-                    key={index}
-                    className={`px-4 py-2 cursor-pointer ${index === selectedStudentIndex ? "bg-indigo-600 text-white" : "hover:bg-gray-200"
-                      }`}
-                    onClick={() => {
-                      setSelectedStudentIndex(index); // 更新选中的学生
-                      setDropdownVisible(false); // 选择后关闭列表
-                    }}
-                  >
-                    {student.name}
-                  </div>
-                ))}
+      <section className="grid gap-6 md:grid-cols-2">
+        <Card className="border-blue-50 bg-white">
+          <CardHeader>
+            <CardTitle className="text-xl">学生科目成绩趋势</CardTitle>
+            <p className="text-sm text-gray-500">
+              选择学生和科目，查看最近考试成绩波动。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="student-select">学生</Label>
+                <select
+                  id="student-select"
+                  className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+                  value={selectedStudentId}
+                  onChange={(e) => setSelectedStudentId(e.target.value)}
+                  disabled={studentsLoading || !!studentsError}
+                >
+                  <option value="">请选择学生</option>
+                  {students.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.studentName}
+                    </option>
+                  ))}
+                </select>
+                {studentsError && (
+                  <p className="text-xs text-red-500">{studentsError}</p>
+                )}
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="subject-select">科目</Label>
+                <select
+                  id="subject-select"
+                  className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  disabled={!subjectOptions.length}
+                >
+                  <option value="">请选择科目</option>
+                  {subjectOptions.map((subject) => (
+                    <option key={subject} value={subject}>
+                      {subject}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {studentTrendError && (
+              <p className="text-sm text-red-500">{studentTrendError}</p>
             )}
 
-            {/* “整体学情”按钮 */}
-            <button
-              className="ml-8 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              onClick={() => {
-                setShowOverallAnalysis(true); // 切换到整体学情
-                setDropdownVisible(false); // 隐藏下拉菜单
-              }}
-            >
-              整体学情
-            </button>
-          </div>
+            <div className="h-72 rounded-lg bg-slate-50 p-4">
+              {!resolvedStudentId || !selectedSubject ? (
+                <Placeholder text="请选择学生和科目以查看趋势" />
+              ) : studentTrendLoading ? (
+                <Placeholder text="正在加载学生成绩..." />
+              ) : studentTrendError ? (
+                <Placeholder text={studentTrendError} variant="error" />
+              ) : !studentTrendFetched ? (
+                <Placeholder text="条件变化后数据将自动刷新" />
+              ) : !studentTrendData.length ? (
+                <Placeholder text="暂无可展示的数据" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={studentTrendData} margin={{ left: 8, right: 8, top: 16 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 12 }}
+                      interval={0}
+                      angle={-15}
+                      textAnchor="end"
+                    />
+                    <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
+                    <Tooltip
+                      formatter={(value: number) => `${value} 分`}
+                      labelFormatter={(label) =>
+                        `${label} | ${dayjs(
+                          studentTrendData.find((item) => item.label === label)?.date
+                        ).format("MM月DD日")}`
+                      }
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      name={selectedSubject}
+                      stroke="#2563eb"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* 班级成员卡片 */}
-          {showOverallAnalysis && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">班级成员</h2>
-              <p className="text-gray-600 mb-4">班级人数：{selectedCourseData.students.length}</p>
-              <div className="flex flex-wrap gap-4">
-                {selectedCourseData.students.map((student, index) => (
-                  <span
-                    key={index}
-                    className="text-lg font-medium text-gray-700 cursor-pointer hover:text-blue-500"
-                    onClick={() => {
-                      setSelectedStudentIndex(index); // 更新选中的学生索引
-                      setShowOverallAnalysis(false); // 切换到个人学情视图
-                    }}
-                  >
-                    {student.name}
-                  </span>
+        <Card className="border-blue-50 bg-white">
+          <CardHeader>
+            <CardTitle className="text-xl">年级平均成绩趋势</CardTitle>
+            <p className="text-sm text-gray-500">
+              按考试批次追踪全体学生平均分变化。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="average-subject">科目筛选</Label>
+              <select
+                id="average-subject"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+                value={averageSubject}
+                onChange={(e) => setAverageSubject(e.target.value)}
+                disabled={!subjectOptions.length}
+              >
+                <option value="">请选择科目</option>
+                {subjectOptions.map((subject) => (
+                  <option key={subject} value={subject}>
+                    {subject}
+                  </option>
                 ))}
-              </div>
-            </Card>
+              </select>
+            </div>
+            {averageError && (
+              <p className="text-sm text-red-500">{averageError}</p>
+            )}
 
-          )}
-
-          {/* 章节任务点整体完成进度卡片 */}
-          {showOverallAnalysis && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">章节任务点</h2>
-              <div className="text-lg text-gray-700">
-                {(() => {
-                  const totalCompletionRates = selectedCourseData.students.map((student) => {
-                    const completedChapters = student.chapters.filter((chapter) => chapter.completed).length;
-                    const totalChapters = student.chapters.length;
-                    return completedChapters / totalChapters;
-                  });
-
-                  const averageCompletionRate =
-                    totalCompletionRates.reduce((sum, rate) => sum + rate, 0) / totalCompletionRates.length;
-
-                  return `平均完成率：${(averageCompletionRate * 100).toFixed(2)}%`;
-                })()}
-              </div>
-            </Card>
-          )}
-
-          {/* 班级均分卡片 */}
-          {showOverallAnalysis && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">班级均分</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  data={selectedCourseData.students[0].examScores.map((_, index) => {
-                    const date = selectedCourseData.students[0].examScores[index].date;
-                    const averageScore =
-                      selectedCourseData.students.reduce((sum, student) => sum + student.examScores[index].score, 0) /
-                      selectedCourseData.students.length;
-                    return { date, averageScore: parseFloat(averageScore.toFixed(2)) };
-                  })}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="averageScore" stroke="#8884d8" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </Card>
-          )}
-
-          {/* 班级平均知识点错误率卡片 */}
-          {showOverallAnalysis && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">平均知识点错误率</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={selectedCourseData.students[0].errorRates.map((topic, index) => {
-                    const averageErrorRate =
-                      selectedCourseData.students.reduce(
-                        (sum, student) => sum + student.errorRates[index].errorRate,
-                        0
-                      ) / selectedCourseData.students.length;
-                    return { topic: topic.topic, averageErrorRate: parseFloat(averageErrorRate.toFixed(2)) };
-                  })}
-                  layout="vertical"
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="topic" />
-                  <Tooltip />
-                  <Bar dataKey="averageErrorRate" fill="#ff9999" barSize={15} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          )}
-
-          {/* 班级平均题型错误率卡片 */}
-          {showOverallAnalysis && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">平均题型错误率</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={selectedCourseData.students[0].questionTypeErrorRates.map((type, index) => {
-                    const averageErrorRate =
-                      selectedCourseData.students.reduce(
-                        (sum, student) => sum + student.questionTypeErrorRates[index].errorRate,
-                        0
-                      ) / selectedCourseData.students.length;
-                    return { type: type.type, averageErrorRate: parseFloat(averageErrorRate.toFixed(2)) };
-                  })}
-                  layout="vertical"
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="type" />
-                  <Tooltip />
-                  <Bar dataKey="averageErrorRate" fill="#87CEEB" barSize={15} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          )}
-
-          {/* 个人学情内容 */}
-          {!showOverallAnalysis && selectedStudent && (
-            <>
-              {/* 学生信息卡片 */}
-              {selectedStudent && (
-                <Card className="flex items-center space-x-4 p-6">
-                  <img
-                    src={selectedStudent.avatar}
-                    alt="学生头像"
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <h2 className="text-xl font-bold">{selectedStudent.name}</h2>
-                </Card>
+            <div className="h-72 rounded-lg bg-slate-50 p-4">
+              {!averageSubject ? (
+                <Placeholder text="请选择科目以查看趋势" />
+              ) : averageLoading || examLoading ? (
+                <Placeholder text="正在汇总数据..." />
+              ) : averageError ? (
+                <Placeholder text={averageError} variant="error" />
+              ) : !averageTrendFetched ? (
+                <Placeholder text="条件变化后数据将自动刷新" />
+              ) : !averageTrendData.length ? (
+                <Placeholder text="暂无平均成绩数据" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={averageTrendData} margin={{ left: 8, right: 8, top: 16 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 12 }}
+                      interval={0}
+                      angle={-15}
+                      textAnchor="end"
+                    />
+                    <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
+                    <Tooltip
+                      formatter={(value: number) => `${value} 分`}
+                      labelFormatter={(label) =>
+                        `${label} | ${dayjs(
+                          averageTrendData.find((item) => item.label === label)?.date
+                        ).format("MM月DD日")}`
+                      }
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      name={averageSubject === "all" ? "平均分" : averageSubject}
+                      stroke="#f97316"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               )}
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
-              {/* 章节任务点卡片 */}
-              {selectedStudent && (
-                <Card className="p-6">
-                  <h2 className="text-xl font-bold mb-4">章节任务点</h2>
-                  <ul className="space-y-2 text-gray-700">
-                    {selectedStudent.chapters.map((chapter, index) => (
-                      <li
-                        key={index}
-                        className="flex justify-between items-center"
-                        style={{
-                          paddingLeft: chapter.level === 2 ? "1.5rem" : "0", // 根据等级缩进
-                        }}
-                      >
-                        <span
-                          className={`${chapter.level === 1
-                            ? "text-lg font-bold"
-                            : "text-base font-normal"
-                            }`}
-                        >
-                          {chapter.name}
-                        </span>
-                        {chapter.completed ? (
-                          <AiOutlineCheckCircle className="text-green-500" />
-                        ) : (
-                          <AiOutlineCloseCircle className="text-gray-400" />
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-4 text-lg font-bold text-gray-800">
-                    完成进度：{" "}
-                    {selectedStudent.chapters.filter((chapter) => chapter.completed).length}/
-                    {selectedStudent.chapters.length}
-                  </p>
-                </Card>
-              )}
+      <section>
+        <Card className="border-dashed border-blue-200 bg-blue-50/60">
+          <CardHeader>
+            <CardTitle className="text-lg">数据维护</CardTitle>
+            <p className="text-sm text-gray-600">
+              快速导入学生、考试与成绩，保持数据最新。
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => handleOpenUploadModal("student")}>上传学生</Button>
+              <Button variant="secondary" onClick={() => handleOpenUploadModal("exam")}>
+                上传考试
+              </Button>
+              <Button variant="outline" onClick={() => handleOpenUploadModal("score")}>
+                上传分数
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
-              {/* 学习记录卡片 */}
-              {selectedStudent && (
-                <Card className="p-6">
-                  <h2 className="text-xl font-bold mb-4">在线学习次数记录</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart
-                      data={selectedStudent.studyRecords}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="count" stroke="#8884d8" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </Card>
-              )}
-
-              {/* 历次考试成绩卡片 */}
-              {selectedStudent && (
-                <Card className="p-6">
-                  <h2 className="text-xl font-bold mb-4">历次考试成绩</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart
-                      data={selectedStudent.examScores}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="score" stroke="#82ca9d" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </Card>
-              )}
-
-              {/* 知识点错误率卡片 */}
-              {selectedStudent && (
-                <Card className="p-6">
-                  <h2 className="text-xl font-bold mb-4">知识点错误率</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                      data={selectedStudent.errorRates}
-                      layout="vertical"
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis type="category" dataKey="topic" />
-                      <Tooltip />
-                      <Bar dataKey="errorRate" fill="#ff9999" barSize={15} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </Card>
-              )}
-
-              {/* 题型错误率卡片 */}
-              {selectedStudent && (
-                <Card className="p-6">
-                  <h2 className="text-xl font-bold mb-4">题型错误率</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                      data={selectedStudent.questionTypeErrorRates}
-                      layout="vertical"
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis type="category" dataKey="type" />
-                      <Tooltip />
-                      <Bar dataKey="errorRate" fill="#87CEEB" barSize={15} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </Card>
-              )}
-            </>
-          )}
-
-          {/* 返回按钮和智能习题推荐按钮 */}
-          <div className="mt-4 flex space-x-4">
-            <button
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              onClick={() => setSelectedCourse(null)}
-            >
-              返回科目选择
-            </button>
-            <button
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              onClick={() => {
-                window.location.href = "/dashboard/exercise";
-              }}
-            >
-              智能习题推荐
-            </button>
-          </div>
-        </div>
-      )}
+      <UploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        uploadType={uploadType}
+      />
     </div>
   );
+}
+
+function Placeholder({
+  text,
+  variant = "info",
+}: {
+  text: string;
+  variant?: "info" | "error";
+}) {
+  return (
+    <div
+      className={`flex h-full items-center justify-center rounded-md border text-sm ${
+        variant === "error"
+          ? "border-red-200 bg-red-50 text-red-600"
+          : "border-dashed border-slate-200 bg-white text-slate-500"
+      }`}
+    >
+      {text}
+    </div>
+  );
+}
+
+function parseNumericId(raw: string): number | null {
+  const trimmed = raw?.trim();
+  if (!trimmed) return null;
+  const direct = Number(trimmed);
+  if (!Number.isNaN(direct)) {
+    return direct;
+  }
+  const matches = trimmed.match(/\d+/g);
+  if (!matches || !matches.length) return null;
+  const candidate = Number(matches[matches.length - 1]);
+  return Number.isNaN(candidate) ? null : candidate;
 }

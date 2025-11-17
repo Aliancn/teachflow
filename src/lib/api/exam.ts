@@ -5,14 +5,24 @@ export interface Exam {
     examName: string;
     examSubject: string;
     examDate: string;
+    filePath: string;
 }
 
-export const uploadExam = (data: { examName: string, examSubject: string, examDate: string }) => 
-    instance.post<
+export const uploadExam = (data: { examName: string; examSubject: string; examDate: string; file: File }) => {
+    const formData = new FormData();
+    formData.append('examName', data.examName);
+    formData.append('examSubject', data.examSubject);
+    formData.append('examDate', data.examDate);
+    formData.append('file', data.file);
+
+    return instance.post<
         ResponseBody<{
             examId: number;
         }>
-    >('/exams', data);
+    >('/exams', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+};
 
 export const getAllExams = () =>
     instance.get<

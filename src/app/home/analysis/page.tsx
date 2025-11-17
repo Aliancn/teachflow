@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import dayjs from "dayjs";
 import {
   ResponsiveContainer,
@@ -305,6 +306,78 @@ export default function AnalysisPage() {
         </p>
       </header>
 
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0">
+            <div>
+              <CardTitle className="text-lg">学生全览</CardTitle>
+              <p className="text-sm text-gray-500">查看所有学生并按年级、班级筛选。</p>
+            </div>
+            <span className="text-3xl font-semibold text-blue-600">
+              {students.length}
+            </span>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between pt-2">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">当前学生</p>
+              <p className="text-sm text-slate-600">支持快捷检索与分组</p>
+            </div>
+            <Link
+              href="/home/analysis/students"
+              className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+            >
+              查看全部
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="border-orange-100 bg-gradient-to-br from-orange-50 via-white to-white">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0">
+            <div>
+              <CardTitle className="text-lg">考试全览</CardTitle>
+              <p className="text-sm text-gray-500">按科目与年份浏览历次考试。</p>
+            </div>
+            <span className="text-3xl font-semibold text-orange-500">
+              {exams.length}
+            </span>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between pt-2">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">考试批次</p>
+              <p className="text-sm text-slate-600">支持下载试卷与快速筛选</p>
+            </div>
+            <Link
+              href="/home/analysis/exams"
+              className="inline-flex items-center rounded-md bg-orange-500 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-orange-600"
+            >
+              查看全部
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="border-dashed border-blue-200 bg-blue-50/60">
+          <CardHeader>
+            <CardTitle className="text-lg">数据维护</CardTitle>
+            <p className="text-sm text-gray-600">
+              快速导入学生、考试与成绩，保持数据最新。
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => handleOpenUploadModal("student")}>
+                上传学生
+              </Button>
+              <Button variant="secondary" onClick={() => handleOpenUploadModal("exam")}>
+                上传考试
+              </Button>
+              <Button variant="outline" onClick={() => handleOpenUploadModal("score")}>
+                上传分数
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
       <section className="grid gap-6 md:grid-cols-2">
         <Card className="border-blue-50 bg-white">
           <CardHeader>
@@ -478,28 +551,6 @@ export default function AnalysisPage() {
                   </LineChart>
                 </ResponsiveContainer>
               )}
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section>
-        <Card className="border-dashed border-blue-200 bg-blue-50/60">
-          <CardHeader>
-            <CardTitle className="text-lg">数据维护</CardTitle>
-            <p className="text-sm text-gray-600">
-              快速导入学生、考试与成绩，保持数据最新。
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button onClick={() => handleOpenUploadModal("student")}>上传学生</Button>
-              <Button variant="secondary" onClick={() => handleOpenUploadModal("exam")}>
-                上传考试
-              </Button>
-              <Button variant="outline" onClick={() => handleOpenUploadModal("score")}>
-                上传分数
-              </Button>
             </div>
           </CardContent>
         </Card>

@@ -29,6 +29,7 @@ export function UploadModal({ isOpen, onClose, uploadType, onDataUpdated }: Uplo
     const [examName, setExamName] = useState('');
     const [examSubject, setExamSubject] = useState('');
     const [examDate, setExamDate] = useState('');
+    const [examFile, setExamFile] = useState<File | null>(null);
     const [selectedExamId, setSelectedExamId] = useState('');
     const [exams, setExams] = useState<Exam[]>([]);
     const [scoreFile, setScoreFile] = useState<File | null>(null);
@@ -149,9 +150,13 @@ export function UploadModal({ isOpen, onClose, uploadType, onDataUpdated }: Uplo
             pushToast('请填写所有考试信息', 'error');
             return;
         }
+        if (!examFile) {
+            pushToast('请上传试卷文件（PDF 或 Word）', 'error');
+            return;
+        }
         setIsSubmitting(true);
         try {
-            await uploadExam({ examName, examSubject, examDate });
+            await uploadExam({ examName, examSubject, examDate, file: examFile });
             pushToast('考试上传成功', 'success');
             onDataUpdated?.('exam');
             onClose();
@@ -304,6 +309,16 @@ export function UploadModal({ isOpen, onClose, uploadType, onDataUpdated }: Uplo
                                 <div className="space-y-2">
                                     <Label htmlFor="examDate">考试日期</Label>
                                     <Input id="examDate" type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="examFile">试卷文件 (PDF / Word)</Label>
+                                    <Input
+                                        id="examFile"
+                                        type="file"
+                                        accept=".pdf,.doc,.docx"
+                                        onChange={(e) => handleFileChange(e, setExamFile)}
+                                    />
+                                    <p className="text-xs text-gray-500">支持 .pdf / .doc / .docx，文件将与考试记录一起保存。</p>
                                 </div>
                             </>
                         )}

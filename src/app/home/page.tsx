@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from '@/components/ui/button';
 import { VerticalTimeline } from '@/components/VerticalTimeline';
 import { useSyllabusStore } from '@/lib/stores/syllabusStore';
+import { generateSyllabusCards } from '@/lib/agents/card_build';
+import { convertToCardData } from '@/lib/utils/syllabusUtils';
 import Loading from '@/components/Loading';
 type featureForm = {
   content: string;
@@ -15,9 +17,11 @@ type featureForm = {
 }
 
 type Step = 'inputSub' | 'selectFeature' | 'showTimeLine' | 'showResult' | 'loading';
+
 export default function DashboardApp() {
   const [inputValue, setInputValue] = useState('');
   const [step, setStep] = useState<Step>('inputSub');
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm<featureForm>({
     defaultValues: {
@@ -28,17 +32,31 @@ export default function DashboardApp() {
     },
     mode: 'onChange' // 添加实时校验模式
   });
-  const { generatedCards, loadMock } = useSyllabusStore();
+  const { generatedCards, setGeneratedCards, setGenerating } = useSyllabusStore();
 
-
-  const onFeatureSubmit = (params: featureForm) => {
+  const onFeatureSubmit = async (params: featureForm) => {
     setStep('loading');
-    const timer = setTimeout(() => {
+    setError(null);
+
+    try {
+      // 调用实际的API生成大纲
+      const result = await generateSyllabusCards({
+        topic: inputValue || params.content,
+        section_count: params.chapters,
+        total_duration: params.duration,
+        style: params.style,
+      });
+
+      // 转换卡片数据格式
+      const cards = convertToCardData(result.result.cards, result.conversation_id);
+      console.log('生成的卡片数据:', cards);
+      setGeneratedCards(cards);
       setStep('showTimeLine');
-      clearTimeout(timer);
-    }, 1000);
-    console.log(params);
-    loadMock();
+    } catch (err) {
+      console.error('生成失败:', err);
+      setError(err instanceof Error ? err.message : '生成失败');
+      setStep('selectFeature'); // 返回表单页面
+    }
   }
 
   const onSyllabusSubmit = () => {
@@ -98,6 +116,11 @@ export default function DashboardApp() {
           <div className="w-full space-y-10">
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-purple-100 space-y-6">
               <h3 className="text-xl font-semibold text-purple-800">请完善教学参数</h3>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-purple-700">教学风格</label>

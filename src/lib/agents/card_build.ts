@@ -1,81 +1,97 @@
-import { DifyMessage } from "@/lib/agents/dify_chat";
-interface DifyRequestBodyBlocking {
-    inputs: {
-        topic :string;
-        section_count: number;
-        total_duration: number;
-    };
-    query: string;
-    response_mode: 'blocking';
-    conversation_id: string;
-    user: string;
-    files?: Array<{
-        type: string;
-        transfer_method: string;
-        url: string;
-    }>;
-}
-
-export interface DifyCardReq {
-    messages: DifyMessage[];
+// 统一的教学大纲卡片生成请求接口
+export interface SyllabusGenerateRequest {
     topic: string;
     section_count: number;
     total_duration: number;
-    conversation_id: string;
-    user?: string;
-    files?: Array<{ type: string; transfer_method: string; url: string }>;
+    style?: string; // 教学风格（可选）
 }
 
-export async function fetchDifyCard(req : DifyCardReq): Promise<{ result: any; conversation_id: string }> {
-    const baseUrl = process.env.NEXT_PUBLIC_DIFY_URL;
-    if (!baseUrl) {
-        throw new Error('DIFY_URL未在环境变量中定义');
-    }
+export interface SyllabusCardItem {
+    title: string;
+    description: string;
+    type: '知识节点' | '互动节点';
+    data: {
+        content: string[];
+        duration: string;
+    };
+}
 
-    const lastMessage = req.messages[req.messages.length - 1].content;
-    const requestBody: DifyRequestBodyBlocking = {
+export interface SyllabusGenerateResponse {
+    result: {
+        cards: SyllabusCardItem[];
+    };
+    conversation_id: string;
+}
+
+// 服务器端调用Dify API的方法（仅在API路由中使用）
+export async function fetchDifyWorkflow(
+    baseUrl: string,
+    token: string,
+    request: SyllabusGenerateRequest
+): Promise<SyllabusGenerateResponse> {
+    const requestBody = {
         inputs: {
-            topic: req.topic,
-            section_count: req.section_count,
-            total_duration: req.total_duration,
+            topic: request.topic,
+            section_count: request.section_count,
+            total_duration: request.total_duration,
+            style: request.style || '',
         },
-        query: lastMessage,
+        query: '请按照要求生成教学大纲。',
         response_mode: 'blocking',
-        conversation_id: req.conversation_id,
-        user: req.user || 'cards_req',
-        files : req.files
+        user: 'cards_req',
     };
 
-    const token = process.env.NEXT_PUBLIC_DIFY_TOKEN_03;
-    if (!token) {
-        throw new Error('DIFY_TOKEN未在环境变量中定义');
-    }
+    console.log('Sending request to Dify:', baseUrl + '/workflows/run');
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
-    const options: RequestInit = {
+    const response = await fetch(baseUrl + '/workflows/run', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-    };
+    });
 
-    try {
-        const response = await fetch(baseUrl + '/chat-messages', options);
-        if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`HTTP错误 ${response.status}: ${errorBody}`);
-        }
-
-        const result = await response.json();
-        const cards = result.answer.replace(/^```json\s*|\s*```$/g, '');
-        const cards_json = JSON.parse(cards);
-        return {
-            result: cards_json,
-            conversation_id: result.conversation_id
-        };
-    } catch (err) {
-        console.error('请求异常:', err);
-        throw err;
+    if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Dify API error:', errorBody);
+        throw new Error(`HTTP错误 ${response.status}: ${errorBody}`);
     }
+
+    const result = await response.json();
+    console.log('Dify API response:', result);
+
+    // 解析返回的卡片数据
+    const cards = result.data.outputs.output.replace(/^```json\s*|\s*```$/g, '');
+    const cards_json = JSON.parse(cards);
+
+    return {
+        result: cards_json,
+        conversation_id: result.conversation_id || ''
+    };
+}
+
+// 客户端调用本地API路由的方法（统一的客户端调用入口）
+export async function generateSyllabusCards(
+    request: SyllabusGenerateRequest
+): Promise<SyllabusGenerateResponse> {
+    console.log('开始生成大纲，参数:', request);
+
+    const response = await fetch('/api/syllabus', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '生成失败');
+    }
+
+    const result = await response.json();
+    console.log('API 响应:', result);
+    return result;
 }

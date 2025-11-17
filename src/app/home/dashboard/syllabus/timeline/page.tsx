@@ -22,7 +22,7 @@ export default function SyllabusResult() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">生成结果</h2>
             <Link
-              href="/dashboard/syllabus"
+              href="/home/dashboard/syllabus"
               className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
             >
               重新生成

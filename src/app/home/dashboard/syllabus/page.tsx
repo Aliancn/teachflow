@@ -2,7 +2,9 @@
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useSyllabusStore } from '@/lib/stores/syllabusStore';
-import { fetchDifyCard, DifyCardReq } from '@/lib/agents/card_build';
+import { generateSyllabusCards } from '@/lib/agents/card_build';
+import { convertToCardData } from '@/lib/utils/syllabusUtils';
+
 type SyllabusFormData = {
   title: string;
   chapters: number;
@@ -12,31 +14,31 @@ type SyllabusFormData = {
 export default function SyllabusGeneration() {
   const { register, handleSubmit } = useForm<SyllabusFormData>();
   const router = useRouter();
-  const { generatedCards, generating,setGeneratedCards, loadMock, setGenerating } = useSyllabusStore();
+  const { setGeneratedCards, setGenerating, generating } = useSyllabusStore();
 
   const onSubmit = async (data: SyllabusFormData) => {
     try {
       setGenerating(true);
-      const req: DifyCardReq = {
-        messages: [{
-          role: 'user',
-          content: `请按照要求生成教学大纲。`
-        }],
+
+      // 使用统一的客户端方法调用API
+      const result = await generateSyllabusCards({
         topic: data.title,
         section_count: data.chapters,
         total_duration: data.duration,
-        conversation_id: ''
-      }
-      // const response = await fetchDifyCard(req);
-      const response = await loadMock();
-      // TODO response.conversation_id
-      console.log('response', response);
-      // setGeneratedCards(response.result.cards);
+      });
+
+      // 转换卡片数据格式
+      const cards = convertToCardData(result.result.cards, result.conversation_id);
+      console.log('转换后的卡片数据:', cards);
+      setGeneratedCards(cards);
+
+      // 只有在成功生成后才跳转
+      router.push('/home/dashboard/syllabus/timeline');
     } catch (error) {
       console.error('生成失败:', error);
+      alert(`生成失败: ${error instanceof Error ? error.message : '未知错误'}`);
     } finally {
       setGenerating(false);
-      router.push('/home/dashboard/syllabus/timeline');
     }
   };
 

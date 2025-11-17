@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/authStore';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type FormValues = {
     username: string;
@@ -17,30 +17,62 @@ export function AuthForm() {
     const router = useRouter();
     const { login, register: registerUser } = useAuthStore();
     const [isRegistering, setIsRegistering] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' | 'info' } | null>(null);
+
+    useEffect(() => {
+        if (!feedback) return;
+        const timer = setTimeout(() => setFeedback(null), 4000);
+        return () => clearTimeout(timer);
+    }, [feedback]);
 
     const onSubmit = async (data: FormValues) => {
         console.log('Form data:', data);
+        setIsSubmitting(true);
+        setFeedback(null);
         try {
             if (isRegistering) {
                 if (!data.email) {
-                    alert('请输入邮箱');
+                    setFeedback({ message: '请输入邮箱', tone: 'error' });
+                    setIsSubmitting(false);
                     return;
                 }
                 await registerUser(data.username, data.password, data.email);
-                alert('注册成功! 请登录。');
+                setFeedback({ message: '注册成功! 请登录。', tone: 'success' });
                 setIsRegistering(false);
             } else {
                 await login(data.username, data.password);
+                setFeedback({ message: '登录成功，正在跳转...', tone: 'success' });
                 router.push('/home');
             }
         } catch (error) {
             console.error(`${isRegistering ? 'Registration' : 'Login'} failed:`, error);
-            alert(`${isRegistering ? '注册' : '登录'}失败`);
+            setFeedback({ message: `${isRegistering ? '注册' : '登录'}失败，请稍后再试`, tone: 'error' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {feedback && (
+                <div
+                    className={`flex items-start gap-2 rounded-lg border p-3 text-sm shadow-sm transition-all ${
+                        feedback.tone === 'success'
+                            ? 'border-green-200 bg-green-50 text-green-700'
+                            : feedback.tone === 'error'
+                                ? 'border-red-200 bg-red-50 text-red-700'
+                                : 'border-blue-200 bg-blue-50 text-blue-700'
+                    }`}
+                >
+                    <span className="font-semibold">
+                        {feedback.tone === 'success' && '✓'}
+                        {feedback.tone === 'error' && '!'}
+                        {feedback.tone === 'info' && 'i'}
+                    </span>
+                    <p>{feedback.message}</p>
+                </div>
+            )}
             <div className="space-y-4">
                 <div>
                     <Label htmlFor="username">用户名</Label>
@@ -72,8 +104,14 @@ export function AuthForm() {
                     />
                 </div>
             </div>
-            <button type="submit" className="w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                {isRegistering ? '注册' : '登录'}
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ${
+                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+            >
+                {isSubmitting ? '处理中...' : isRegistering ? '注册' : '登录'}
             </button>
 
             <div className="text-center">

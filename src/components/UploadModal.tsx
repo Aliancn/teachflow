@@ -10,14 +10,18 @@ import { createStudent, createStudents, StudentRequest } from '@/lib/api/student
 import { uploadExam, getAllExams, Exam } from '@/lib/api/exam';
 import { uploadScoresForExam } from '@/lib/api/score';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { useToast } from '@/lib/hooks/useToast';
+
+export type UploadType = 'student' | 'exam' | 'score';
 
 interface UploadModalProps {
     isOpen: boolean;
     onClose: () => void;
-    uploadType: 'student' | 'exam' | 'score';
+    uploadType: UploadType;
+    onDataUpdated?: (type: UploadType) => void;
 }
 
-export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
+export function UploadModal({ isOpen, onClose, uploadType, onDataUpdated }: UploadModalProps) {
     const [studentNumber, setStudentNumber] = useState('');
     const [studentName, setStudentName] = useState('');
     const [grade, setGrade] = useState('');
@@ -30,7 +34,9 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
     const [scoreFile, setScoreFile] = useState<File | null>(null);
     const [studentFile, setStudentFile] = useState<File | null>(null);
     const [uploadMethod, setUploadMethod] = useState<'single' | 'bulk'>('single');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { user } = useAuthStore();
+    const pushToast = useToast();
 
     // 加载考试列表
     useEffect(() => {
@@ -38,6 +44,12 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
             loadExams();
         }
     }, [uploadType, isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setIsSubmitting(false);
+        }
+    }, [isOpen]);
 
     const loadExams = async () => {
         try {
@@ -58,15 +70,16 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
 
     const handleStudentUpload = async () => {
         if (!user?.id) {
-            alert('用户未登录');
+            pushToast('请先登录后再操作', 'error');
             return;
         }
 
         if (uploadMethod === 'single') {
             if (!studentNumber || !studentName || !grade || !clazz) {
-                alert('请填写所有学生信息');
+                pushToast('请填写所有学生信息', 'error');
                 return;
             }
+            setIsSubmitting(true);
             try {
                 const studentData: StudentRequest = {
                     studentNumber,
@@ -75,17 +88,21 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
                     clazz,
                 };
                 await createStudent(studentData);
-                alert('学生上传成功');
+                pushToast('学生上传成功', 'success');
+                onDataUpdated?.('student');
                 onClose();
             } catch (error) {
                 console.error('上传学生失败:', error);
-                alert('上传学生失败');
+                pushToast('上传学生失败，请稍后重试', 'error');
+            } finally {
+                setIsSubmitting(false);
             }
         } else {
             if (!studentFile) {
-                alert('请选择学生文件');
+                pushToast('请选择学生文件', 'error');
                 return;
             }
+            setIsSubmitting(true);
             const reader = new FileReader();
             reader.onload = async (e) => {
                 try {
@@ -103,17 +120,25 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
                     }));
 
                     if (students.some(s => !s.studentName || !s.grade || !s.clazz)) {
-                        alert('Excel文件中包含无效数据，请检查列名是否为 "姓名", "年级", "班级"');
+                        pushToast('Excel文件包含无效数据，请使用 "姓名"、"年级"、"班级" 列名', 'error');
+                        setIsSubmitting(false);
                         return;
                     }
 
                     await createStudents(students);
-                    alert('批量上传学生成功');
+                    pushToast('批量上传学生成功', 'success');
+                    onDataUpdated?.('student');
                     onClose();
                 } catch (error) {
                     console.error('批量上传学生失败:', error);
-                    alert('批量上传学生失败');
+                    pushToast('批量上传学生失败，请稍后重试', 'error');
+                } finally {
+                    setIsSubmitting(false);
                 }
+            };
+            reader.onerror = () => {
+                pushToast('读取学生文件失败，请重试', 'error');
+                setIsSubmitting(false);
             };
             reader.readAsBinaryString(studentFile);
         }
@@ -121,24 +146,29 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
 
     const handleExamUpload = async () => {
         if (!examName || !examSubject || !examDate) {
-            alert('请填写所有考试信息并选择文件');
+            pushToast('请填写所有考试信息', 'error');
             return;
         }
+        setIsSubmitting(true);
         try {
             await uploadExam({ examName, examSubject, examDate });
-            alert('考试上传成功');
+            pushToast('考试上传成功', 'success');
+            onDataUpdated?.('exam');
             onClose();
         } catch (error) {
             console.error('上传考试失败:', error);
-            alert('上传考试失败');
+            pushToast('上传考试失败，请稍后重试', 'error');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleScoreUpload = async () => {
         if (!selectedExamId || !scoreFile) {
-            alert('请选择考试并选择分数文件');
+            pushToast('请选择考试并上传分数文件', 'error');
             return;
         }
+        setIsSubmitting(true);
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
@@ -152,16 +182,24 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
                     scoreValue: parseFloat(row['分数'] || row['score'])
                 }));
                 if (scores.some(s => isNaN(s.studentNumber) || isNaN(s.scoreValue))) {
-                    alert('Excel文件中包含无效数据，请检查列名是否为 "学号", "分数"');
+                    pushToast('Excel文件包含无效数据，请使用 "学号"、"分数" 列名', 'error');
+                    setIsSubmitting(false);
                     return;
                 }
                 await uploadScoresForExam(parseInt(selectedExamId, 10), scores);
-                alert('分数上传成功');
+                pushToast('分数上传成功', 'success');
+                onDataUpdated?.('score');
                 onClose();
             } catch (error) {
                 console.error('上传分数失败:', error);
-                alert('上传分数失败');
+                pushToast('上传分数失败，请稍后重试', 'error');
+            } finally {
+                setIsSubmitting(false);
             }
+        };
+        reader.onerror = () => {
+            pushToast('读取分数文件失败，请重试', 'error');
+            setIsSubmitting(false);
         };
         reader.readAsBinaryString(scoreFile);
     };
@@ -295,7 +333,9 @@ export function UploadModal({ isOpen, onClose, uploadType }: UploadModalProps) {
                         )}
                         <div className="flex justify-end space-x-2">
                             <Button variant="outline" onClick={onClose}>取消</Button>
-                            <Button onClick={handleSubmit}>上传</Button>
+                            <Button onClick={handleSubmit} disabled={isSubmitting}>
+                                {isSubmitting ? '上传中...' : '上传'}
+                            </Button>
                         </div>
                     </div>
                 </CardContent>

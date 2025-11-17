@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import {
   ResponsiveContainer,
@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { UploadModal } from "@/components/UploadModal";
+import { UploadModal, UploadType } from "@/components/UploadModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card_Upload";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,6 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { getStudentsByTeacherId, StudentResponse } from "@/lib/api/student";
 import { Exam, getAllExams } from "@/lib/api/exam";
 import { getScoresByStudent, getScoresByExam, Score } from "@/lib/api/score";
-
-type UploadType = "student" | "exam" | "score";
 
 interface TrendPoint {
   label: string;
@@ -60,6 +58,7 @@ export default function AnalysisPage() {
   const [averageError, setAverageError] = useState("");
   const [averageSubject, setAverageSubject] = useState<string>("");
   const [averageTrendFetched, setAverageTrendFetched] = useState(false);
+  const [scoreRefreshKey, setScoreRefreshKey] = useState(0);
 
   const examMap = useMemo(() => {
     return new Map(exams.map((exam) => [exam.examId, exam]));
@@ -75,42 +74,49 @@ export default function AnalysisPage() {
     return parseNumericId(selectedStudentId);
   }, [selectedStudentId]);
 
-  useEffect(() => {
-    if (!user?.id) return;
+  const fetchStudents = useCallback(async () => {
+    if (!user?.id) {
+      setStudents([]);
+      return;
+    }
     setStudentsLoading(true);
     setStudentsError("");
-    (async () => {
-      try {
-        const response = await getStudentsByTeacherId(user.id);
-        if (response.data.code === "200") {
-          setStudents(response.data.data || []);
-        } else {
-          setStudentsError("获取学生列表失败");
-        }
-      } catch (error) {
-        console.error("获取学生列表失败", error);
+    try {
+      const response = await getStudentsByTeacherId(user.id);
+      if (response.data.code === "200") {
+        setStudents(response.data.data || []);
+      } else {
         setStudentsError("获取学生列表失败");
-      } finally {
-        setStudentsLoading(false);
       }
-    })();
+    } catch (error) {
+      console.error("获取学生列表失败", error);
+      setStudentsError("获取学生列表失败");
+    } finally {
+      setStudentsLoading(false);
+    }
   }, [user?.id]);
 
-  useEffect(() => {
+  const fetchExams = useCallback(async () => {
     setExamLoading(true);
-    (async () => {
-      try {
-        const response = await getAllExams();
-        if (response.data.code === "200") {
-          setExams(response.data.data || []);
-        }
-      } catch (error) {
-        console.error("获取考试列表失败", error);
-      } finally {
-        setExamLoading(false);
+    try {
+      const response = await getAllExams();
+      if (response.data.code === "200") {
+        setExams(response.data.data || []);
       }
-    })();
+    } catch (error) {
+      console.error("获取考试列表失败", error);
+    } finally {
+      setExamLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
+
+  useEffect(() => {
+    fetchExams();
+  }, [fetchExams]);
 
   useEffect(() => {
     setStudentScores([]);
@@ -202,7 +208,7 @@ export default function AnalysisPage() {
     return () => {
       cancelled = true;
     };
-  }, [resolvedStudentId, selectedSubject]);
+  }, [resolvedStudentId, selectedSubject, scoreRefreshKey]);
 
   useEffect(() => {
     if (!averageSubject || examLoading) return;
@@ -269,12 +275,25 @@ export default function AnalysisPage() {
     return () => {
       cancelled = true;
     };
-  }, [averageSubject, exams, examLoading]);
+  }, [averageSubject, exams, examLoading, scoreRefreshKey]);
 
   const handleOpenUploadModal = (type: UploadType) => {
     setUploadType(type);
     setUploadModalOpen(true);
   };
+
+  const handleDataUpdated = useCallback(
+    (type: UploadType) => {
+      if (type === "student") {
+        fetchStudents();
+      } else if (type === "exam") {
+        fetchExams();
+      } else if (type === "score") {
+        setScoreRefreshKey((current) => current + 1);
+      }
+    },
+    [fetchStudents, fetchExams]
+  );
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6">
@@ -490,6 +509,7 @@ export default function AnalysisPage() {
         isOpen={isUploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
         uploadType={uploadType}
+        onDataUpdated={handleDataUpdated}
       />
     </div>
   );

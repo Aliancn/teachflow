@@ -61,7 +61,6 @@ export default function PaperGenerationPage() {
                 paper_type: formData.paperType,
                 question_count: formData.questionCount,
                 include_answer: formData.includeAnswer,
-                include_analysis: formData.includeAnalysis,
             });
 
             // 保存到 store

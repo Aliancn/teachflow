@@ -2,13 +2,15 @@
 import { useState } from 'react';
 import { DocumentTextIcon, AcademicCapIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { usePaperStore } from '@/lib/stores/paperStore';
-import { useRouter } from 'next/navigation';  // 导入useRouter
+import { useRouter } from 'next/navigation';
+import { generatePaper } from '@/lib/agents/card_build';
+
 export default function PaperGenerationPage() {
     type KnowledgePoint = {
         id: number;
         name: string;
     };
-    const router = useRouter();  // 初始化useRouter
+    const router = useRouter();
     const [formData, setFormData] = useState({
         knowledgePoints: [] as KnowledgePoint[],
         title: '',
@@ -20,10 +22,11 @@ export default function PaperGenerationPage() {
         includeAnswer: true,
         includeAnalysis: false
     });
-    // 在现有state中添加
     const [newKnowledge, setNewKnowledge] = useState('');
-    const { generatedPaper, loadMockData } = usePaperStore();
-    // 在handleSubmit前添加知识点处理方法
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { setPaper } = usePaperStore();
+
     const handleAddKnowledge = () => {
         if (newKnowledge.trim() && formData.knowledgePoints.length < 5) {
             setFormData({
@@ -41,13 +44,37 @@ export default function PaperGenerationPage() {
         { id: 'class3', name: '高三理科班' },
     ];
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('试卷配置：', formData);
-        // TODO: 调用生成试卷的API
-        loadMockData(); // 模拟数据
-        router.push('/home/dashboard/paper/result'); // 跳转到生成结果页面
+        setLoading(true);
+        setError(null);
 
+        try {
+            console.log('试卷配置：', formData);
+
+            // 调用实际的API生成试卷
+            const result = await generatePaper({
+                title: formData.title,
+                subject: formData.subject,
+                knowledge_points: formData.knowledgePoints.map(kp => kp.name),
+                difficulty: formData.difficulty,
+                paper_type: formData.paperType,
+                question_count: formData.questionCount,
+                include_answer: formData.includeAnswer,
+                include_analysis: formData.includeAnalysis,
+            });
+
+            // 保存到 store
+            setPaper(result.question, result.answer, result.title);
+
+            // 跳转到生成结果页面
+            router.push('/home/dashboard/paper/result');
+        } catch (err) {
+            console.error('生成试卷失败:', err);
+            setError(err instanceof Error ? err.message : '生成失败');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -56,6 +83,13 @@ export default function PaperGenerationPage() {
                 <DocumentTextIcon className="w-6 h-6 text-purple-600" />
                 生成测试试卷
             </h1>
+
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <p className="font-medium">错误</p>
+                    <p>{error}</p>
+                </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* 基本设置 */}
@@ -228,10 +262,20 @@ export default function PaperGenerationPage() {
                 <div className="mt-8">
                     <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all font-medium flex items-center justify-center gap-2"
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <AcademicCapIcon className="w-5 h-5" />
-                        立即生成试卷
+                        {loading ? (
+                            <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                正在生成试卷...
+                            </>
+                        ) : (
+                            <>
+                                <AcademicCapIcon className="w-5 h-5" />
+                                立即生成试卷
+                            </>
+                        )}
                     </button>
                 </div>
             </form>

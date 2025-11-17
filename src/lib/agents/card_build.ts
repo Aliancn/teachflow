@@ -174,3 +174,97 @@ export async function generateSyllabusContent(
     console.log('详细内容 API 响应:', result);
     return result;
 }
+
+// ==================== 试卷生成接口 ====================
+
+// 试卷生成请求接口
+export interface PaperGenerateRequest {
+    title: string;              // 试卷标题
+    subject: string;            // 学科
+    knowledge_points: string[]; // 知识点列表
+    difficulty: string;         // 难度: easy, medium, hard
+    paper_type: string;         // 类型: unit, midterm, final, mock
+    question_count: number;     // 题目数量
+    include_answer: boolean;    // 是否包含答案
+}
+
+// 试卷生成响应接口
+export interface PaperGenerateResponse {
+    question: string;  // 试卷题目内容（Markdown格式）
+    answer: string;    // 参考答案（Markdown格式）
+    title: string;     // 试卷标题
+}
+
+// 服务器端调用Dify API生成试卷（仅在API路由中使用）
+export async function fetchDifyWorkflowPaper(
+    baseUrl: string,
+    token: string,
+    request: PaperGenerateRequest
+): Promise<PaperGenerateResponse> {
+    const requestBody = {
+        inputs: {
+            title: request.title,
+            subject: request.subject,
+            knowledge_points: JSON.stringify(request.knowledge_points),
+            difficulty: request.difficulty,
+            paper_type: request.paper_type,
+            question_count: request.question_count,
+            include_answer: request.include_answer,
+        },
+        query: '请根据要求生成试卷。',
+        response_mode: 'blocking',
+        user: 'paper_req',
+    };
+
+    console.log('Sending paper request to Dify:', baseUrl + '/workflows/run');
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+    const response = await fetch(baseUrl + '/workflows/run', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Dify API error:', errorBody);
+        throw new Error(`HTTP错误 ${response.status}: ${errorBody}`);
+    }
+
+    const result = await response.json();
+    console.log('Dify API response:', result);
+
+    // 解析返回的试卷数据
+    return {
+        question: result.data.outputs.question || result.data.outputs.text,
+        answer: result.data.outputs.answer || '',
+        title: request.title
+    };
+}
+
+// 客户端调用本地API路由生成试卷（统一的客户端调用入口）
+export async function generatePaper(
+    request: PaperGenerateRequest
+): Promise<PaperGenerateResponse> {
+    console.log('开始生成试卷，参数:', request);
+
+    const response = await fetch('/api/paper', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '生成试卷失败');
+    }
+
+    const result = await response.json();
+    console.log('试卷 API 响应:', result);
+    return result;
+}

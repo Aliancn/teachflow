@@ -26,6 +26,7 @@ type PlanState = {
     addPlan: (plan: Plan) => void;
     updatePlan: (updatedPlan: Plan) => void;
     loadMockData: () => void;
+    setPlanFromSyllabusData: (syllabusText: string, goal: string, topic: string, subject?: string, grade?: string) => void; // 新增：从教学大纲数据生成计划
 }
 
 export const usePlanStore = create<PlanState>((set) => ({
@@ -93,6 +94,38 @@ export const usePlanStore = create<PlanState>((set) => ({
                 exercise: {
                     type: 'text',
                     content: mockData.text
+                }
+            }
+        })
+    },
+    setPlanFromSyllabusData: (syllabusText: string, goal: string, topic: string, subject?: string, grade?: string) => {
+        set({
+            currentPlan: {
+                id: Date.now().toString(),
+                title: {
+                    topic: topic,
+                    subject: subject || '未指定',
+                    grade: grade || '未指定'
+                },
+                teachingObjective: {
+                    type: 'text',
+                    content: goal
+                },
+                description: {
+                    type: 'text',
+                    content: syllabusText
+                },
+                syllabus: {
+                    type: 'text',
+                    content: syllabusText
+                },
+                resource: {
+                    type: 'text',
+                    content: '暂无资源'
+                },
+                exercise: {
+                    type: 'text',
+                    content: '暂无练习'
                 }
             }
         })

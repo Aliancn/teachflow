@@ -24,7 +24,7 @@ export interface SyllabusGenerateResponse {
 }
 
 // 服务器端调用Dify API的方法（仅在API路由中使用）
-export async function fetchDifyWorkflow(
+export async function fetchDifyWorkflowCard(
     baseUrl: string,
     token: string,
     request: SyllabusGenerateRequest
@@ -93,5 +93,84 @@ export async function generateSyllabusCards(
 
     const result = await response.json();
     console.log('API 响应:', result);
+    return result;
+}
+
+// ==================== 详细教学内容生成接口 ====================
+
+// 详细教学内容生成请求接口
+export interface SyllabusContentRequest {
+    card_content: SyllabusCardItem[]; // 之前生成的教学卡片内容
+}
+
+// 详细教学内容响应接口
+export interface SyllabusContentResponse {
+    text: string; // 详细的教学讲义内容（Markdown格式）
+    goal: string; // 教学目标
+}
+
+// 教学内容+教学目标 服务器端调用Dify API的方法
+export async function fetchDifyWorkflowContent(
+    baseUrl: string,
+    token: string,
+    request: SyllabusContentRequest
+): Promise<SyllabusContentResponse> {
+    const requestBody = {
+        inputs: {
+            card_content: JSON.stringify(request.card_content),
+        },
+        query: '请按照要求生成详细教学内容。',
+        response_mode: 'blocking',
+        user: 'cards_word_req',
+    };
+
+    console.log('Sending request to Dify:', baseUrl + '/workflows/run');
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+    const response = await fetch(baseUrl + '/workflows/run', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Dify API error:', errorBody);
+        throw new Error(`HTTP错误 ${response.status}: ${errorBody}`);
+    }
+
+    const result = await response.json();
+    console.log('Dify API response:', result);
+
+    return {
+        text: result.data.outputs.text,
+        goal: result.data.outputs.goals 
+    };
+}
+
+// 客户端调用本地API路由生成详细教学内容（统一的客户端调用入口）
+export async function generateSyllabusContent(
+    request: SyllabusContentRequest
+): Promise<SyllabusContentResponse> {
+    console.log('开始生成详细教学内容，参数:', request);
+
+    const response = await fetch('/api/syllabus/content', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '生成详细内容失败');
+    }
+
+    const result = await response.json();
+    console.log('详细内容 API 响应:', result);
     return result;
 }

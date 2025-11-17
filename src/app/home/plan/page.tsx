@@ -1,18 +1,85 @@
 "use client";
 import { useState, useEffect } from "react";
 import { usePlanStore } from '@/lib/stores/planStore';
+import { useSyllabusStore } from '@/lib/stores/syllabusStore';
 import { ProfileCard } from '@/components/PlanCard/Profile';
 import { ContentCard } from '@/components/PlanCard/ContentCard';
 import { ResourceList } from '@/components/PlanCard/ResourceList';
 import { Plus } from 'lucide-react';
+import { generateSyllabusContent } from '@/lib/agents/card_build';
 
 export default function LessonPlanPage() {
-    const { currentPlan, loadMockData } = usePlanStore();
+    const { currentPlan, setPlanFromSyllabusData } = usePlanStore();
+    const { generatedCards, word, setWord } = useSyllabusStore();
     const [problems, setProblems] = useState<any[]>([]); // 初始习题数据
     const [addedExercises, setAddedExercises] = useState<any[]>([]); // 从 exercise 页面添加的习题
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        loadMockData();
+        // 从 syllabusStore 加载真实数据
+        const loadRealData = async () => {
+            // 检查是否有卡片数据
+            if (!generatedCards || generatedCards.length === 0) {
+                setError('未找到教学大纲数据，请先在一键备课页面生成教学大纲');
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError(null);
+
+                // 检查是否已有详细内容
+                let syllabusText = '';
+                let goal = '';
+                let topic = generatedCards[0]?.title || '未命名课程';
+
+                if (word.length > 0 && word[0]?.content && false) {
+                    // 已有详细内容，直接使用
+                    // TODO 暂不支持加载
+                    syllabusText = word[0].content;
+                    goal = word[0].goal || '提供优质的教学体验';
+                } else {
+                    // 没有详细内容，调用API生成
+                    const cardContent = generatedCards.map(card => ({
+                        title: card.title,
+                        description: card.description,
+                        type: card.type,
+                        data: {
+                            content: card.data.content,
+                            duration: card.data.duration
+                        }
+                    }));
+
+                    const result = await generateSyllabusContent({
+                        card_content: cardContent
+                    });
+
+                    syllabusText = result.text;
+                    goal = result.goal || '提供优质的教学体验';
+
+                    // 保存到 syllabusStore，包含 text 和 goal
+                    setWord(syllabusText, goal);
+                }
+
+                // 填充到 planStore
+                setPlanFromSyllabusData(
+                    syllabusText,
+                    goal,
+                    topic,
+                    '未指定', // subject
+                    '未指定'  // grade
+                );
+
+            } catch (err) {
+                console.error('加载教学计划数据失败:', err);
+                setError(err instanceof Error ? err.message : '加载失败');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadRealData();
 
         // 加载习题数据
         const fetchProblems = async () => {
@@ -50,6 +117,28 @@ export default function LessonPlanPage() {
 
     return (
         <div>
+            {loading && (
+                <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
+                    <div className="text-center">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+                        <p className="text-lg text-gray-700">正在加载教学计划...</p>
+                    </div>
+                </div>
+            )}
+
+            {error && (
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg shadow-lg z-50 max-w-md">
+                    <p className="font-medium">错误</p>
+                    <p>{error}</p>
+                    <button
+                        onClick={() => window.location.href = '/home'}
+                        className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+                    >
+                        返回一键备课页面
+                    </button>
+                </div>
+            )}
+
             <div className="flex w-full h-screen overflow-hidden">
                 <div className="relative mr-4 max-w-3xl px-8 py-10 bg-white overflow-hidden w-64 border-r border-gray-200 shadow-sm shadow-purple-100/50">
                     {/* 装饰元素 */}

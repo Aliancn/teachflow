@@ -5,15 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function SyllabusResult() {
-  const { generatedCards , loadMockWord} = useSyllabusStore();
+  const { generatedCards, clearWord } = useSyllabusStore();
   const router = useRouter();
-  const onSubmit = async () => {
-    try {
-      await loadMockWord();
-      router.push('/home/dashboard/syllabus/word');
-    } catch (error) {
-      console.error('生成失败:', error);
-    }
+  const onSubmit = () => {
+    // 清除之前的详细内容，进入word页面时会自动调用API生成
+    clearWord();
+    router.push('/home/dashboard/syllabus/word');
   };
   return (
     <div className="p-8 bg-white">

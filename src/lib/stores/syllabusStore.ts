@@ -14,7 +14,8 @@ export type CardData = {
 };
 export type SyllabusWord = {
     uuid: number;
-    content: string;
+    content: string; // 详细的教学讲义内容
+    goal?: string;   // 教学目标
 }
 
 type SyllabusState = {
@@ -27,6 +28,8 @@ type SyllabusState = {
     updateCard: (updatedCard: CardData) => void;
     updateCardOrder: (newOrder: string[]) => void;
     loadMockWord : () => Promise<void>;
+    setWord: (content: string, goal?: string) => void; // 新增：设置详细教学内容和目标
+    clearWord: () => void; // 新增：清空详细教学内容
 };
 
 export const useSyllabusStore = create<SyllabusState>((set) => ({
@@ -85,12 +88,21 @@ export const useSyllabusStore = create<SyllabusState>((set) => ({
             set(produce((state) => {
                 state.word[0] = {
                     uuid: 0,
-                    content: mockData.default.text
+                    content: mockData.default.text,
+                    goal: mockData.default.goal
                 }
             }));
         }
         catch (err) {
             console.error('加载mock word数据失败', err);
         }
-    }
+    },
+    setWord: (content: string, goal?: string) => set(produce((state) => {
+        state.word[0] = {
+            uuid: 0,
+            content: content,
+            goal: goal
+        }
+    })),
+    clearWord: () => set({ word: [] })
 }));

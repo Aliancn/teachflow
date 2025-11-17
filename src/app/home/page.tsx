@@ -60,11 +60,12 @@ export default function DashboardApp() {
   }
 
   const onSyllabusSubmit = () => {
-    setStep('loading');
-    const timer = setTimeout(() => {
-      setStep('showResult');
-      clearTimeout(timer);
-    }, 1000);
+    // 确保有生成的卡片数据
+    if (!generatedCards || generatedCards.length === 0) {
+      setError('请先生成教学大纲卡片');
+      return;
+    }
+    // 直接跳转到教学计划页面，该页面会自动加载和生成详细内容
     router.push('/home/plan');
   }
 
@@ -178,7 +179,7 @@ export default function DashboardApp() {
 
 
       {step == 'showTimeLine' && (
-        <div className="bg-white rounded-2xl p-8 shadow-lg border border-purple-100">
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-purple-100 w-full ">
           <h3 className="text-2xl font-bold text-purple-800 mb-6">课程时间轴</h3>
           <div className="mx-4">
             <VerticalTimeline
